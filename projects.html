@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Projects - Sahasra Ranjan</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Roboto:300,300i,400,400i,500,500i,700,700i&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-center ">
+    <div class="container d-flex justify-content-between align-items-center">
+
+      <div class="logo">
+        <h1 class="text-light"><a href="#"><span>Projects</span></a></h1>
+      </div>
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="active " href="index.html">Home</a></li>
+          <li class="dropdown"><a href="#"><span>Reports</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li><a href="./docs/aip.pdf">Video Denoising (AIP)</a></li>
+              <li><a href="./docs/snapmath.pdf">Snapmath (ITSP)</a></li>
+            </ul>
+          </li>
+          <li><a href="#footer">Contact Me</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+    </div>
+  </header>
+
+  <main id="main">
+
+
+    <section class="portfolio" id="projects">
+      <div class="container">
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="assets/img/docs/nlp.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3 style="color: #4fa6d5;">Multi Constrained Code-Switched Text Modelling</h3>
+            <p class="fst-italic">
+              Guide: Prof. Preethi Jyothi, CSALT Lab | B.Tech. Project at IIT Bombay in collaboration with Google Research India | 2022 - 
+            </p>
+            <ul>
+              <li>Currently working on a generalised framework for code-switched text generation, with multiple possible constraints on formality, politeness, semantic similarity, etc – test tasks on English-Hindi and English-Spanish</li>
+              <li>Exploring multiple MLM techniques based on word language to improve code-switched text generataion model.</li>
+              <li>Working on Frequency MLM technique which improves the text generation without the word language information</li>
+            </ul>
+          </div>
+        </div>
+
+        
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3">
+            <img src="assets/img/docs/rubrik.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3 style="color: #4fa6d5;"">Snapshot Metadata Garbage Collection</a></h3>
+            <p class="fst-italic">
+              Software Engineering Internship | Rubrik, Bangalore, India | 2022
+            </p>
+            <ul>
+              <li>Worked on a GC algorithm for a snapshot tool in a cloud data backup and recovery system using Go Lang & Korg.</li>
+              <li>Developed a mechanism to track expired critical data snapshots which were blocking 30-40% of the database table.</li>
+              <li>Ideated & implemented a framework to periodically find unnecessary snapshots and remove them from the database</li>
+            </ul>
+          </div>
+        </div>
+        
+
+        
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="assets/img/docs/hhu.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3><a href="docs/hhu.pdf">Protein Language Modeling with ESM1b-e2e</a></h3>
+            <p class="fst-italic">
+              Prof. Martin J. Lercher, Alexander Kroll | Research Internship at HHU, Dusseldorf, Germany | 2021
+            </p>
+            <ul>
+              <li>Worked on a BERT based model on PyTorch to create high dimensional representations for enzyme sequences for the prediction of enzyme-substrate binding (binary classification task)</li>
+              <li>Adapted ESM model to build an end-to-end model which outperformed the existing SOTA models for the task</li>
+              <li>Improved accuracy for the task was achieved from 79.8% to 87.5% with the new representations that were created with parallel training on 8 GPUs for 10 epochs</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3">
+            <img src="assets/img/docs/aip.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-4">
+            <h3><a href="https://github.com/sahasrarjn/cs754-AIP/tree/master/project/190050095_190050102_project/code">Video Denoising using Low-Rank Matrix Completion</a></h3>
+            <p class="fst-italic">
+              Guide: Prof. Ajit Rajwade | Course Project: Advanced Image Processing
+            </p>
+            <ul>
+              <li>Applied Adaptive Median Filtering algorithm for removing impulsive noise from the spatial domain of the video</li>
+              <li>Implemented Three Step Cross Search on MATLAB for organising similar patches across the temporal domain</li>
+              <li>Adapted Fixed Point Iterative Algorithm for reducing Poisson and Gaussian noise from the image sequence</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="https://research-assets.cbinsights.com/2017/11/20155651/112017-Blockchain-4-V2.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3 style="color: #4fa6d5;">Blockchain: Simulation of P2P Cryptocurreny Network</h3>
+            <p class="fst-italic">
+              Guide: Prof. Vinay J. Ribeiro | Course Project: Introduction to Blockchains, Cryptocurrencies, and Smart Contract
+            </p>
+            <ul>
+              <li>Build a discrete-event simulator for P2P cryptocurrency network on python to study the blockchain network</li>
+              <li>Implemented selfish mining attack proposed by  Eyal and Sirer in the paper ”Majority is not Enough”</li>
+              <li>Build a layer-2 Decentralised APPlication (DAPP) on top of Etherium blockchain using Solidity and Ganache</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3">
+            <img src="assets/img/docs/cache.jpeg" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-4">
+            <h3><a href="https://github.com/sahasrarjn/CS305-POPT">Cache Replacement for Graph Application</a></h3>
+            <p class="fst-italic">
+              Guide: Prof. Biswa | Course Project: Computer Architecture
+            </p>
+            <ul>
+              <li>Worked on P-OPT algorithm proposed in the paper "Practical Optimal Cache Replacement for Graphs"</li>
+              <li>Used Champsim cache simulator to extract data and implement the algorithm for a fixed graph benchmark</li>
+              <li>Achived an improvement in LLC load hit rate by a factor of 3x as compared to LRU replacement policy</li>
+            </ul>
+          </div>
+        </div>
+
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="assets/img/docs/snapmath.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3><a href="docs/snapmath.pdf">SnapMath, Image to LaTeX convertor</a></h3>
+            <p class="fst-italic">
+              Institute Technical Summer Project | Institute Technical Council
+            </p>
+            <ul>
+              <li>Implemented a CNN and LSTM based model on PyTorch for generating LaTeX expression of the input equation</li>
+              <li>Adapted the OpenAI problem statement and used im2latex-100k dataset to achieve a BLUE-4 score of 38.82</li>
+              <li>Deployed the model on a Django based interactive web application and integrated the Django-TeX parser</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3">
+            <img src="assets/img/docs/ocde.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5">
+            <h3 style="color: #4fa6d5;">Online Coding and Development Environment</h3>
+            <p class="fst-italic">
+              Guide: Prof. Amitabha Sanyal | Course Project: Software and System Labs
+            </p>
+            <ul>
+              <li>Created a web platform providing an in-browser IDE and support for user organised coding competitions</li style="margin-bottom: 0.5cm;">
+              <li>Used Django, Angular and PostgreSQL to create an interactive user interface with secure user-authentication</li>
+              <li>Implemented user directory separation, multiple language support and isolation using Docker for security.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="assets/img/docs/coded.jpeg" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3 style="color: #4fa6d5;">Video from Single Exposure Coded Snapshot</h3>
+            <p class="fst-italic">
+              Guide: Prof. Ajit Rajwade | Course Project: Advanced Image Processing
+            </p>
+            <ul>
+              <li>Adapted publication from ICCV’11 to reconstruct spatial and temporal domain of the video from coded snapshot</li>
+              <li>Implemented Orthogonal Matching Pursuit algorithm for sparse reconstruction to achieve RMSE of 0.03301</li>
+            </ul>
+          </div>
+        </div>
+
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3">
+            <img src="assets/img/docs/quadtree.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5">
+            <h3 style="color: #4fa6d5;">Image Compression using Quad-Tree</h3>
+            <p class="fst-italic">
+              Guide: Prof. Ajit A. Diwan | Course Project: Data Structures and Algorithm
+            </p>
+            <ul>
+              <li>Created a Region quad-tree class in C++ to store grey-scale images with highly optimised space complexity</li>
+              <li>Implemented optimised algorithms to allow for intersection, overlap, resize, complement, and extraction of images</li>
+            </ul>
+          </div>
+        </div>
+
+
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="assets/img/docs/tcp.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3 style="color: #4fa6d5;">Testing Transport Layer Protocols</h3>
+            <p class="fst-italic">
+              Guide: Prof. Vinay Ribeiro | Course Project: Computer Networks
+            </p>
+            <ul>
+              <li>Implemented client and server using Socket Programming in C, to send files using different variants of TCP</li>
+              <li>Used Bash to automate experiments and generate plots for comparing throughput, delay, and packet loss</li>
+              <li>Recorded network traffic using Wireshark and analysed window scaling graphs for TCP Cubic and TCP Reno</li>
+            </ul>
+          </div>
+        </div>
+
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3">
+            <img src="assets/img/docs/mastermind.jpg" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5">
+            <h3 style="color: #4fa6d5;">Robust Mastermind Player</h3>
+            <p class="fst-italic">
+              Guide: Prof. Ashutosh Gupta | Course Project: Logic for Computer Science
+            </p>
+            <ul>
+              <li>Encoded moves of the mastermind game into an SAT problem and solved using conflict driven clause learning</li>
+              <li>Implemented a solver in Python using z3py library which was robust to the other player lying up to 30% of the time</li>
+            </ul>
+          </div>
+        </div>
+
+        
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-3 order-1 order-md-2">
+            <img src="assets/img/docs/atdoc.jpg" class="img-fluid" alt="" style="height: 5cm; width: auto;">
+          </div>
+          <div class="col-md-9 pt-5 order-2 order-md-1">
+            <h3 style="color: #4fa6d5;">AtDoc: Online Doctor Consultation Service</h3>
+            <p class="fst-italic">
+              Database and Backend Internship
+            </p>
+            <ul>
+              <li>Lead the backend development in a telemedicine startup to schedule non-contact consultations for patients</li>
+              <li>Implemented a database for storing encrypted information of doctors and patients on AWS using PostgreSQL</li>
+              <li>Worked on a Django based backend enabling end-to-end features including in-app audio and video calling</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+
+
+
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="500">
+
+    <div class="footer-top">
+      <div class="container">
+        <div class="row" style="margin-bottom: 0.5cm;">
+
+          <div class="col-lg-4 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="index.html">Home</a></li>
+              <!-- <li><i class="bx bx-chevron-right"></i> <a href="#">About Me</a></li> -->
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Projects</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/sahasrarjn">Github profile</a></li>
+            </ul>
+          </div>
+
+
+          <div class="col-lg-4 col-md-6 footer-contact">
+            <h4>Contact Me</h4>
+            <p>
+              <h5>Sahasra Ranjan</h5>
+              <strong>Phone:</strong> +91 91620 95738<br>
+              <strong>Email:</strong> sahasra@cse.iitb.ac.in<br>
+            </p>
+          </div>
+
+          <div class="col-lg-4 col-md-6 footer-info">
+            <div style="height: 80%;"></div>
+            <div class="social-links mt-3" style="float: right;">
+              <a href="https://github.com/sahasrarjn" class="github"><i class="bx bxl-github"></i></a>
+              <a href="https://www.linkedin.com/in/sahasra-ranjan-2478521a6/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+              <a href="https://www.facebook.com/sahasra.ranjan/" class="facebook"><i class="bx bxl-facebook"></i></a>
+              <a href="https://www.instagram.com/sahasraranjan/" class="instagram"><i class="bx bxl-instagram"></i></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="opacity: 2%;">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Moderna</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/free-bootstrap-template-corporate-moderna/ -->
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a style="margin-bottom: 0.5cm;">
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/purecounter/purecounter.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
