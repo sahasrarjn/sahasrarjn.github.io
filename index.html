@@ -57,33 +57,12 @@
       <nav id="navbar" class="navbar">
         <ul>
           <li><a class="active " href="index.html">Home</a></li>
-          <!-- <li><a href="#about">About Me</a></li> -->
-          <li><a href="#work">Research and Work Experience</a></li>
-          <li><a href="#projects">Key Projects</a></li>
-          <!-- <li><a href="#">Academics</a></li> -->
-          <li class="dropdown"><a href="#"><span>Docs</span> <i class="bi bi-chevron-down"></i></a>
-            <ul>
-              <li class="dropdown">
-                <a href="./docs/resume.pdf"><span>Resume</span></a>
-              </li>
-              <li class="dropdown"><a href="#projects"><span>Projects</span> <i class="bi bi-chevron-right"></i></a>
-                <ul>
-                  <!-- <li><a href="./docs/rubrik.pdf">Snapshot Metadata GC (Rubrik)</a></li> -->
-                  <li><a href="./docs/hhu.pdf">ESM1b-e2e (HHU)</a></li>
-                  <li><a href="./docs/aip.pdf">Video Denoising (AIP)</a></li>
-                  <li><a href="./docs/snapmath.pdf">Snapmath (ITSP)</a></li>
-                </ul>
-              </li>
-              <!-- <li><a href="./docs/resume1.pdf">One page</a></li> -->
-            </ul>
-          </li>
-          <li class="dropdown"><a href="#"><span>CP profiles</span> <i class="bi bi-chevron-down"></i></a>
-            <ul>
-              <li><a href="https://codeforces.com/profile/sahasra01">Codeforces</a></li>
-              <li><a href="https://www.codechef.com/users/sahasra01">Codechef</a></li>
-            </ul>
-          </li>
-          <li><a href="#footer">Contact Me</a></li>
+          <li><a href="#publications">Publications</a></li>
+          <li><a href="#research">Research</a></li>
+          <li><a href="#education">Education</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="./docs/resume.pdf">CV</a></li>
+          <li><a href="#footer">Contact</a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
@@ -103,13 +82,14 @@
           <h2 class="animate__animated animate__fadeInDown" style="font-family: 'Georgia', serif; font-size: 40px;">
             Sahasra Ranjan</h2>
           <p class="animate__animated animate__fadeInUp">
-            Hello, I am a Founding AI Engineer at Socratic AI and an IIT Bombay graduate. <br>
-            I find my interests in Artificial Intelligence, Natural Language Processing, Algorithms and Systems.
-            <!-- You can find out my projects <a href="projects.html">here</a>. -->
+            Researcher in NLP and Machine Learning. IIT Bombay CS graduate. <br>
+            Currently Founding AI Engineer at Socratic AI.
           </p>
 
           <div>
-            <a href="projects.html" class="btn-get-started animate__animated animate__fadeInUp">Projects</a>
+            <a href="docs/resume.pdf" class="btn-get-started animate__animated animate__fadeInUp">CV</a>
+            <a href="https://scholar.google.com/citations?user=g-QzvU4AAAAJ&hl=en"
+              class="btn-get-started animate__animated animate__fadeInUp">Google Scholar</a>
             <a href="https://github.com/sahasrarjn"
               class="btn-get-started animate__animated animate__fadeInUp">Github</a>
           </div>
@@ -130,159 +110,38 @@
 
   <main id="main">
 
-
-    <!-- ======= Features Section ======= -->
-    <!-- <section class="features" id="about">
-      <div class="container">
-
-        <div class="section-title">
-          <h2>About Me</h2>
-          <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
-        </div>
-
-      </div>
-    </section> -->
-
-
-
-    <!-- ======= Project Section ======= -->
-    <section class="portfolio" id="work">
-      <div class="container">
-        <div class="section-title">
-          <h2>Research and Work Experience</h2>
-          <!-- <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p> -->
-        </div>
-
-        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
-          <div class="col-md-3 order-1 order-md-2">
-            <!-- <img src="assets/img/docs/socratic.png" class="img-fluid" alt="" style="height: 5cm; width: auto;"> -->
-            <div
-              style="height: 5cm; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
-              <h3 style="color: #4fa6d5;">Socratic AI</h3>
-            </div>
-          </div>
-          <div class="col-md-9 pt-5 order-2 order-md-1">
-            <h3 style="color: #4fa6d5;">Socratic AI Inc</h3>
-            <p class="fst-italic">
-              Founding AI Engineer (2nd engineer) | Sunnyvale, CA | Aug 2025 - Present
-            </p>
-            <ul>
-              <li>Architected Claude Agent SDK integration: designed unified subagent system with task delegation,
-                native streaming, and 70/30 message compaction. Core infrastructure powering all AI features.</li>
-              <li>Built Odoo ERP connector from scratch: schema introspection, field customization agents with infinite
-                loop prevention, CSV validation, and data migration workflows. Reduced 6-week enterprise migrations to
-                days.</li>
-              <li>Designed streaming citation system for Knowledge Q&A: O(n) grounding parser, real-time inline
-                references, and artifact resolution. Built full-stack end-to-end (database migrations, backend services,
-                frontend UI).</li>
-              <li>Implemented AI-enhanced PDF processing: Claude vision + Gemini for image descriptions, two-pass
-                extraction (instant feedback + async deep analysis), and original-quality image extraction from complex
-                documents.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
-          <div class="col-md-3 order-1 order-md-2">
-            <!-- <img src="assets/img/docs/mathkraft.png" class="img-fluid" alt="" style="height: 5cm; width: auto;"> -->
-            <div
-              style="height: 5cm; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
-              <h3 style="color: #4fa6d5;">Mathkraft</h3>
-            </div>
-          </div>
-          <div class="col-md-9 pt-5 order-2 order-md-1">
-            <h3 style="color: #4fa6d5;">Mathkraft</h3>
-            <p class="fst-italic">
-              Co-founder, AI Math Tutor for K-8 | San Francisco, CA | 2024 - 2025
-            </p>
-            <ul>
-              <li>Co-founded AI tutoring startup to democratize math education; built platform where kids create
-                adventures and characters with math woven into storylines. Piloted with 150+ students achieving 95%+
-                retention over 6 months.</li>
-              <li>Managed team of 4 engineers and 6 tutors; conducted 50+ hands-on sessions to understand what kids and
-                parents care about. Discovered younger students need emotional connection before cognitive engagement.
-              </li>
-              <li>Human-in-loop model proved unscalable; led to insight that some gaps between models and humans are
-                structural, not accidental, motivating deeper interest in AI alignment and robustness.</li>
-            </ul>
-          </div>
-        </div>
-
-
-
-        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
-          <div class="col-md-3">
-            <img src="assets/img/docs/rubrik.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
-          </div>
-          <div class="col-md-9 pt-5 order-2 order-md-1">
-            <h3 style="color: #4fa6d5;">Snapshot Metadata Garbage Collection</h3>
-            <p class="fst-italic">
-              Cloud Data Software Engineer | Rubrik, Bengaluru, India | Summer 2022 (Intern), 2023 - 2024 (Full-time)
-            </p>
-            <ul>
-              <li>Designed garbage collection for snapshot metadata; built reference tracking, mark-sweep lifecycle, and
-                gRPC APIs for automated orphaned entry detection and removal across distributed storage nodes.</li>
-              <li>Extended retention lock and legal hold to cloud-native workloads; implemented archival/replication
-                constraints for immutable backups protecting petabytes of enterprise data.</li>
-              <li>Implemented async SLA assignment with event-driven architecture and operation poller for non-blocking
-                parallel workload scheduling across thousands of protected objects.</li>
-            </ul>
-          </div>
-        </div>
-
-
-
-
-
-        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
-          <div class="col-md-3 order-1 order-md-2">
-            <img src="assets/img/docs/hhu.png" class="img-fluid" alt="" style="height: 5cm; width: auto;">
-          </div>
-          <div class="col-md-9 pt-5 order-2 order-md-1">
-            <h3><a href="docs/hhu.pdf">Protein Language Modeling with ESM1b-e2e</a></h3>
-            <p class="fst-italic">
-              Prof. Martin J. Lercher, Alexander Kroll | Research Internship at HHU, Dusseldorf, Germany | 2021
-            </p>
-            <ul>
-              <li>Worked on a BERT based model on PyTorch to create high dimensional representations for enzyme
-                sequences for the prediction of enzyme-substrate binding (binary classification task)</li>
-              <li>Adapted ESM model to build an end-to-end model which outperformed the existing SOTA models for the
-                task</li>
-              <li>Improved accuracy for the task was achieved from 79.8% to 87.5% with the new representations that were
-                created with parallel training on 8 GPUs for 10 epochs</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-      </div>
-    </section><!-- End Portfolio Section -->
-
     <!-- ======= Publications Section ======= -->
     <section class="portfolio" id="publications">
       <div class="container">
         <div class="section-title">
-          <h2>Selected Publications</h2>
+          <h2>Publications</h2>
         </div>
 
         <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
           <div class="col-md-12">
-            <ul>
-              <li style="margin-bottom: 15px;">
-                <strong>Sahasra Ranjan</strong>, Richeek Das, Shreya Pathak, Preethi Jyothi. <br>
-                <em>Improving Pretraining Techniques for Code-Switched NLP.</em> <br>
-                <strong>ACL 2023</strong> <span class="badge bg-warning text-dark">Outstanding Paper Award</span>
+            <ul style="list-style: none; padding-left: 0;">
+              <li style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f0ad4e; border-radius: 4px;">
+                <span class="badge bg-warning text-dark" style="margin-bottom: 8px;">Outstanding Paper Award</span><br>
+                Richeek Das*, <strong>Sahasra Ranjan*</strong>, Shreya Pathak, Preethi Jyothi. <em>(*Equal contribution)</em><br>
+                <em>Improving Pretraining Techniques for Code-Switched NLP.</em><br>
+                <strong>ACL 2023</strong> (61st Annual Meeting of the Association for Computational Linguistics)<br>
+                <a href="https://aclanthology.org/2023.acl-long.63/" style="color: #4fa6d5;">[Paper]</a>
+                <a href="https://github.com/cse-iitb-csalt/code-switch-mlm" style="color: #4fa6d5;">[Code]</a>
               </li>
-              <li style="margin-bottom: 15px;">
-                Alexander Kroll, <strong>Sahasra Ranjan</strong>, Martin K. M. Engqvist, Martin J. Lercher. <br>
-                <em>A general model to predict small molecule substrates of enzymes based on machine and deep
-                  learning.</em> <br>
-                <strong>Nature Communications, 2023</strong> <span class="fst-italic">(160+ citations)</span>
+              <li style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+                <span class="badge bg-primary" style="margin-bottom: 8px;">170+ Citations</span><br>
+                Alexander Kroll, <strong>Sahasra Ranjan</strong>, Martin K. M. Engqvist, Martin J. Lercher.<br>
+                <em>A general model to predict small molecule substrates of enzymes based on machine and deep learning.</em><br>
+                <strong>Nature Communications, 2023</strong><br>
+                <a href="https://www.nature.com/articles/s41467-023-38347-2" style="color: #4fa6d5;">[Paper]</a>
+                <a href="https://esp.cs.hhu.de" style="color: #4fa6d5;">[Web Server]</a>
               </li>
-              <li style="margin-bottom: 15px;">
-                Alexander Kroll, <strong>Sahasra Ranjan</strong>, Martin J. Lercher. <br>
-                <em>ProSmith: Drug-target interaction prediction using a multi-modal transformer network.</em> <br>
-                <strong>PLoS Computational Biology, 2024</strong>
+              <li style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+                Alexander Kroll, <strong>Sahasra Ranjan</strong>, Martin J. Lercher.<br>
+                <em>A multimodal Transformer Network for protein-small molecule interactions enhances predictions of kinase inhibition and enzyme-substrate relationships.</em><br>
+                <strong>PLoS Computational Biology, 2024</strong><br>
+                <a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1012100" style="color: #4fa6d5;">[Paper]</a>
+                <a href="https://deepmolecules.org" style="color: #4fa6d5;">[Web Server]</a>
               </li>
             </ul>
           </div>
@@ -290,156 +149,139 @@
       </div>
     </section>
 
-
-    <section class="portfolio" id="projects">
+    <!-- ======= Research Experience Section ======= -->
+    <section class="portfolio section-bg" id="research">
       <div class="container">
         <div class="section-title">
-          <h2>Key Projects</h2>
-          <!-- <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p> -->
+          <h2>Research Experience</h2>
         </div>
 
-        <div class="row" data-aos="fade-up">
-          <div class="col-md-4">
-            <img src="assets/img/docs/aip.png" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-8 pt-4">
-            <h3><a
-                href="https://github.com/sahasrarjn/cs754-AIP/tree/master/project/190050095_190050102_project/code">Video
-                Denoising using Low-Rank Matrix Completion</a></h3>
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <h3 style="color: #4fa6d5;">Code-Switched NLP Research</h3>
             <p class="fst-italic">
-              Guide: Prof. Ajit Rajwade | Course Project: Advanced Image Processing
+              Advisor: Prof. Preethi Jyothi | CSALT Lab, IIT Bombay | Jul 2022 - May 2023
             </p>
             <ul>
-              <li>Applied Adaptive Median Filtering algorithm for removing impulsive noise from the spatial domain of
-                the video</li>
-              <li>Implemented Three Step Cross Search on MATLAB for organising similar patches across the temporal
-                domain</li>
-              <li>Adapted Fixed Point Iterative Algorithm for reducing Poisson and Gaussian noise from the image
-                sequence</li>
+              <li>Developed novel pretraining techniques for code-switched NLP, introducing Switch-MLM with boundary-aware masking at language transition points.</li>
+              <li>Proposed RESBERT architecture with residual connections, achieving 5.8 F1 improvement on QA tasks across Hindi-English and Tamil-English pairs.</li>
+              <li>Published at ACL 2023 as first author; received <strong>Outstanding Paper Award</strong> (awarded to &lt;1% of accepted papers).</li>
             </ul>
           </div>
         </div>
 
-        <!-- <div class="row" data-aos="fade-up">
-          <div class="col-md-4">
-            <img src="assets/img/docs/ocde.png" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-8 pt-5">
-            <h3 style="color: #4fa6d5;">Online Coding and Development Environment</h3>
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <h3 style="color: #4fa6d5;">Enzyme-Substrate Prediction with Protein Language Models</h3>
             <p class="fst-italic">
-              Guide: Prof. Amitabha Sanyal | Course Project: Software and System Labs
+              Advisor: Prof. Martin J. Lercher | Heinrich Heine University Düsseldorf, Germany | May 2021 - Jun 2023
             </p>
             <ul>
-              <li>Created a web platform providing an in-browser IDE and support for user organised coding competitions</li>
-              <li>Used Django, Angular and PostgreSQL to create an interactive user interface with secure user-authentication</li>
-              <li>Implemented user directory separation, multiple language support and isolation using Docker for data protection</li>
-            </ul>
-          </div>
-        </div> -->
-
-        <div class="row" data-aos="fade-up">
-          <div class="col-md-4 order-1 order-md-2">
-            <img src="https://research-assets.cbinsights.com/2017/11/20155651/112017-Blockchain-4-V2.png"
-              class="img-fluid" alt="">
-          </div>
-          <div class="col-md-8 pt-5 order-2 order-md-1">
-            <h3 style="color: #4fa6d5;">Blockchain: Simulation of P2P Cryptocurreny Network</h3>
-            <p class="fst-italic">
-              Guide: Prof. Vinay J. Ribeiro | Course Project: Introduction to Blockchains, Cryptocurrencies, and Smart
-              Contract
-            </p>
-            <ul>
-              <li>Build a discrete-event simulator for P2P cryptocurrency network on python to study the blockchain
-                network</li>
-              <li>Implemented selfish mining attack proposed by Eyal and Sirer in the paper ”Majority is not Enough”
-              </li>
-              <li>Build a layer-2 Decentralised APPlication (DAPP) on top of Etherium blockchain using Solidity and
-                Ganache</li>
+              <li>Fine-tuned ESM-1b transformer for enzyme-substrate prediction, creating task-specific representations that improved accuracy from 80% to 91.5%.</li>
+              <li>Developed ProSmith, a multimodal transformer combining ESM-1b and ChemBERTa2, achieving 94.2% accuracy on enzyme-substrate prediction.</li>
+              <li>Published in Nature Communications (170+ citations) and PLoS Computational Biology. Models deployed at <a href="https://esp.cs.hhu.de" style="color: #4fa6d5;">esp.cs.hhu.de</a> with 50k+ submissions.</li>
             </ul>
           </div>
         </div>
 
-        <div class="more" data-aos="fade-up">
-          <span>
-            <a href="./projects.html">
-              Other Projects
-            </a>
-          </span>
-        </div>
-
-      </div>
-    </section><!-- End Portfolio Section -->
-
-
-    <!-- ======= Why Us Section ======= -->
-    <section class="why-us section-bg" data-aos="fade-up" date-aos-delay="200">
-      <div class="container" style="width: 50%;">
-
-        <div class="row">
-          <!-- <div class="col-lg-4 video-box">
-            <video width="320" height="240" controls>
-              <source src="https://www.instagram.com/p/CClgbjQHPyE-kd7F2aR8UMvgWIAO_Rp6XRhOQI0/" type="video/mp4">
-            </video>
-          </div> -->
-
-          <div class="col-lg-12 d-flex flex-column justify-content-center p-5">
-
-            <div class="icon-box">
-              <div class="icon"><i class="bx bx-music"></i></div>
-              <h4 class="title"><a href="https://www.instagram.com/sahasraranjan/" target="_blank">Guitar Covers</a>
-              </h4>
-              <p class="description">Learned Guitar during the Summer School of Cult conducted by Symphony, music club
-                of IITB</p>
-            </div>
-
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <h3 style="color: #4fa6d5;">Bachelor's Thesis: Catastrophic Forgetting in Neural Networks</h3>
+            <p class="fst-italic">
+              Advisors: Prof. Preethi Jyothi, Prof. Manoj Prabhakaran | IIT Bombay | 2022 - 2023
+            </p>
+            <ul>
+              <li>Developed committee-based SGD variants to address catastrophic forgetting, using gradient modification with buffer of prior examples.</li>
+              <li>Evaluated on CIFAR-10, CIFAR-100, and Flowers102; demonstrated improved retention of previously learned tasks.</li>
+              <li>Awarded <strong>Thomas Dooie Research Excellence Award</strong> for best Bachelor's thesis (top 2-4 graduates per year).</li>
+            </ul>
           </div>
         </div>
 
       </div>
     </section>
-    <!-- End Why Us Section -->
 
-
-    <!-- ======= Services Section ======= -->
-    <!-- <section class="services">
-      <div class="section-title">
-          <h2>Extracurriculars</h2>
-        </div>
+    <!-- ======= Education Section ======= -->
+    <section class="portfolio" id="education">
       <div class="container">
+        <div class="section-title">
+          <h2>Education & Awards</h2>
+        </div>
 
-        <div class="row">
-          <div class="col-md-4 col-lg-4 d-flex align-items-stretch" data-aos="fade-up">
-            <div class="icon-box icon-box-pink">
-              <div class="icon"><i class="bx bxl-dribbble"></i></div>
-              <h4 class="title"><a href="">Lorem Ipsum</a></h4>
-              <p class="description">Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident</p>
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+              <h4 style="color: #1e4356; margin-bottom: 10px;">Indian Institute of Technology Bombay</h4>
+              <p style="margin-bottom: 0;"><strong>B.Tech in Computer Science and Engineering</strong> | Aug 2019 - May 2023</p>
             </div>
-          </div>
 
-          <div class="col-md-4 col-lg-4 d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="100">
-            <div class="icon-box icon-box-cyan">
-              <div class="icon"><i class="bx bx-file"></i></div>
-              <h4 class="title"><a href="">Sed ut perspiciatis</a></h4>
-              <p class="description">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur</p>
-            </div>
+            <h4 style="color: #1e4356; margin-top: 30px; margin-bottom: 20px;">Awards & Honors</h4>
+            <ul>
+              <li style="margin-bottom: 12px;">
+                <strong style="color: #f0ad4e;">ACL 2023 Outstanding Paper Award</strong> — Awarded to &lt;1% of accepted papers at the premier NLP conference
+              </li>
+              <li style="margin-bottom: 12px;">
+                <strong>Thomas Dooie Research Excellence Award</strong> — Best Bachelor's Thesis, IIT Bombay (top 2-4 graduates per year)
+              </li>
+              <li style="margin-bottom: 12px;">
+                <strong>JEE Advanced 2019</strong> — All India Rank 127 out of 1.2 million candidates
+              </li>
+            </ul>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="col-md-4 col-lg-4 d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="200">
-            <div class="icon-box icon-box-green">
-              <div class="icon"><i class="bx bx-tachometer"></i></div>
-              <h4 class="title"><a href="">Magni Dolores</a></h4>
-              <p class="description">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
-            </div>
+    <!-- ======= Industry Experience Section ======= -->
+    <section class="portfolio section-bg" id="experience">
+      <div class="container">
+        <div class="section-title">
+          <h2>Industry Experience</h2>
+        </div>
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <h3 style="color: #4fa6d5;">Founding AI Engineer</h3>
+            <p class="fst-italic">
+              Socratic AI Inc | Sunnyvale, CA | Aug 2024 - Present
+            </p>
+            <ul>
+              <li>2nd engineer at AI startup building agents for ERP implementation and enterprise data migration.</li>
+              <li>Architected Claude Agent SDK integration with unified subagent system, streaming, and message compaction.</li>
+              <li>Built Odoo ERP connector reducing 6-week enterprise migrations to days.</li>
+            </ul>
           </div>
+        </div>
 
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <h3 style="color: #4fa6d5;">Co-founder & CTO</h3>
+            <p class="fst-italic">
+              Mathkraft | San Francisco, CA | Nov 2024 - May 2025
+            </p>
+            <ul>
+              <li>Co-founded AI tutoring startup for K-8 math education; built platform with adventure-based learning.</li>
+              <li>Scaled to 120+ learners, $60K annualized revenue, 97% retention over 6 months.</li>
+              <li>Led AI and product development; pivoted based on user research insights.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" data-aos="fade-up" style="margin-bottom: 1cm;">
+          <div class="col-md-12">
+            <h3 style="color: #4fa6d5;">Software Engineer</h3>
+            <p class="fst-italic">
+              Rubrik | Bangalore, India | Jun 2023 - Jul 2024
+            </p>
+            <ul>
+              <li>Built large-scale automation for SLA lifecycle, archival reliability, and snapshot metadata in enterprise backup platform.</li>
+              <li>Designed garbage collection for distributed storage; implemented retention lock for cloud-native workloads.</li>
+            </ul>
+          </div>
         </div>
 
       </div>
-    </section> -->
-    <!-- End Services Section-->
-
-
-
+    </section>
 
 
   </main><!-- End #main -->
@@ -452,41 +294,31 @@
         <div class="row">
 
           <div class="col-lg-4 col-md-6 footer-links">
-            <h4>Useful Links</h4>
+            <h4>Links</h4>
             <ul>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
-              <!-- <li><i class="bx bx-chevron-right"></i> <a href="#">About Me</a></li> -->
-              <li><i class="bx bx-chevron-right"></i> <a href="projects.html">Projects</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/sahasrarjn">Github profile</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="./docs/resume.pdf">CV / Resume</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://scholar.google.com/citations?user=g-QzvU4AAAAJ&hl=en">Google Scholar</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/sahasrarjn">GitHub</a></li>
             </ul>
           </div>
 
 
           <div class="col-lg-4 col-md-6 footer-contact">
-            <h4>Contact Me</h4>
+            <h4>Contact</h4>
             <p>
             <h5>Sahasra Ranjan</h5>
-            <strong>Phone:</strong> +91 91620 95738<br>
-            <strong>Email:</strong> sahasra@cse.iitb.ac.in<br>
+            <strong>Email:</strong> sahasraranjan@gmail.com<br>
+            <strong>Phone:</strong> +1 (628) 997-5812<br>
             </p>
           </div>
 
 
           <div class="col-lg-4 col-md-6 footer-info">
-            <div style="height: 80%;"></div>
-            <div style="float: right;">
-              <!-- hitwebcounter Code START -->
-              <a href="https://www.hitwebcounter.com" target="_blank">
-                <img
-                  src="https://hitwebcounter.com/counter/counter.php?page=7886769&style=0007&nbdigits=4&type=ip&initCount=0"
-                  title="Free Counter" Alt="web counter" border="0" /></a>
-            </div>
             <div class="social-links mt-3" style="float: right;">
+              <a href="https://scholar.google.com/citations?user=g-QzvU4AAAAJ&hl=en" class="google"><i class="bx bxl-google"></i></a>
               <a href="https://github.com/sahasrarjn" class="github"><i class="bx bxl-github"></i></a>
-              <a href="https://www.linkedin.com/in/sahasra-ranjan-2478521a6/" class="linkedin"><i
-                  class="bx bxl-linkedin"></i></a>
-              <a href="https://www.facebook.com/sahasra.ranjan/" class="facebook"><i class="bx bxl-facebook"></i></a>
-              <a href="https://www.instagram.com/sahasraranjan/" class="instagram"><i class="bx bxl-instagram"></i></a>
+              <a href="https://www.linkedin.com/in/sahasra-ranjan-2478521a6/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+              <a href="https://twitter.com/ranjan_sahasra" class="twitter"><i class="bx bxl-twitter"></i></a>
             </div>
           </div>
 
