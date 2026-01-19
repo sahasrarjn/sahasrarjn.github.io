@@ -203,6 +203,9 @@ html{
   display: none;
   line-height: 0;
   transition: 0.5s;
+  outline: none;
+  border: none;
+  background: none;
 }
 
 @media (max-width: 991px) {
