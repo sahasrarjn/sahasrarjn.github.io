@@ -41,7 +41,9 @@
 
   --f-display: "Source Serif 4", Charter, "Iowan Old Style", Georgia, serif;
   --f-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  --measure: 66ch;
+  /* px-based, not ch: the ch unit resolves against each element's own font,
+     so serif headings and sans body would land on different widths */
+  --measure: 52rem;
 }
 
 /* Pico ramps the root font size from 100% up to 131.25% as the viewport
@@ -93,7 +95,19 @@
 
 /* ---------------------------------------------------------------- structure */
 
-main.container { max-width: 1000px; }
+main.container { max-width: 900px; }
+
+/* Prose sits at a reading measure while figures and tables use the full
+   shell. Centring the prose keeps both symmetric about the same axis, so the
+   inset reads as deliberate rather than as a ragged right edge. */
+article section > p,
+article section > h2,
+article section > h3,
+article section > ul,
+article section > ol,
+article section > pre,
+article section > .callout,
+article section > .note { margin-inline: auto; }
 
 /* Pico renders <article> as a card. Long-form wants plain page flow. */
 article {
