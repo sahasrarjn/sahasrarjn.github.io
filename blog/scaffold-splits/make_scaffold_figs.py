@@ -114,8 +114,8 @@ def fig_chain():
     for row, (a, b, c) in enumerate([(smi, murcko, generic), (smi2, murcko2, generic2)]):
         y = 30 + row * (CELL_H + 14)
         o.append(cell(xs[0], y, a, "molecule", a[:30]))
-        o.append(cell(xs[1], y, b, "Murcko framework", b or "—"))
-        o.append(cell(xs[2], y, c, "generic framework", c or "—"))
+        o.append(cell(xs[1], y, b, "Murcko framework", b or "none"))
+        o.append(cell(xs[2], y, c, "generic framework", c or "none"))
         o.append(arrow(xs[0] + CELL_W + 14, y + CELL_H / 2, "side chains"))
         o.append(arrow(xs[1] + CELL_W + 14, y + CELL_H / 2, "atom types"))
     o.append("</svg>")
@@ -170,7 +170,7 @@ def fig_sink():
     o = [HEAD.format(w=W, h=H, alt="Four chemically unlike Tox21 molecules that all "
                                    "reduce to the same benzene scaffold"), STYLE]
     o.append('<text class="note" x="40" y="16">These four Tox21 molecules are '
-             'chemically unalike &#8212; and Murcko says they are the same group.</text>')
+             'chemically unalike, and Murcko says they are the same group.</text>')
     for i, s in enumerate(smis):
         o.append(cell(40 + i * (CELL_W + 12), 30, s, f"molecule {i+1}", s[:30]))
     ax = 40 + 4 * (CELL_W + 12)
@@ -206,7 +206,7 @@ def fig_hole():
     o = [HEAD.format(w=W, h=H, alt="Real acyclic Tox21 molecules, which have no "
                                    "Murcko scaffold at all"), STYLE]
     o.append('<text class="note" x="40" y="16">No ring means no framework. '
-             'RDKit returns the empty string &#8212; and every implementation then '
+             'RDKit returns the empty string, and every implementation then '
              'invents its own answer.</text>')
     for i, s in enumerate(picks):
         o.append(cell(40 + i * (CELL_W + 12), 30, s, f"acyclic molecule", s[:30]))

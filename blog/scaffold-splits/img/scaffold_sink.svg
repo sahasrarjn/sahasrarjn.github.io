@@ -11,7 +11,7 @@
 .note{fill:var(--ink-2,#4A4E58);font-size:11px}
 .hl{fill:var(--leak,#9B3B24);font-size:11px;font-weight:600}
 </style>
-<text class="note" x="40" y="16">These four Tox21 molecules are chemically unalike &#8212; and Murcko says they are the same group.</text>
+<text class="note" x="40" y="16">These four Tox21 molecules are chemically unalike, and Murcko says they are the same group.</text>
 <g transform="translate(40,30)">
 <rect class="cell" x="0" y="0" width="210" height="165" rx="3"/>
 <text class="ct" x="105.0" y="18" text-anchor="middle">molecule 1</text>

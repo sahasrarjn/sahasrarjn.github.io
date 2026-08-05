@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Scaffold Split Is Not One Thing — Sahasra Ranjan</title>
+<title>Your Scaffold Split Is Not One Thing · Sahasra Ranjan</title>
 <meta name="description" content="Two undocumented implementation choices inside a 'scaffold split' moved a reported AUC by 0.185 on one MoleculeNet dataset and did nothing on another. Measured across four datasets, five seeds, with a model attached.">
 <meta name="keywords" content="scaffold split, cheminformatics, RDKit, MoleculeNet, data leakage, machine learning, drug discovery">
 <meta name="author" content="Sahasra Ranjan">
@@ -11,7 +11,7 @@
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Your Scaffold Split Is Not One Thing">
-<meta property="og:description" content="'Scaffold split' is not one thing. Two choices no paper reports swing a reported AUC by 0.19 — and which one bites you depends on your data.">
+<meta property="og:description" content="'Scaffold split' is not one thing. Two choices no paper reports swing a reported AUC by 0.185, and which one bites you depends on your data.">
 <meta name="twitter:card" content="summary_large_image">
 
 <style>
@@ -248,27 +248,29 @@ sup{font-size:.7em}
     the room gets suspicious.
   </p>
   <p>
-    But a split is not its name. A split is a <em>distance</em> &mdash; the chemical gap it puts
-    between training and test &mdash; and that distance is decided as much by undocumented
-    implementation details as by the rule you cite in your methods section.
+    But a split is not its name. A split is a distance: the chemical gap it puts between training and
+    test. And that distance gets decided as much by undocumented implementation details as by the
+    rule you cite in your methods section.
   </p>
   <p>
-    I measured this across four MoleculeNet datasets, with five seeds, and trained a model on every
-    split so I could report what the choices actually cost. Three results:
+    I measured this on four MoleculeNet datasets with five seeds, and trained a model on every split
+    so I could say what the choices actually cost. Three results:
   </p>
   <ol>
     <li><b>Two free choices inside &ldquo;scaffold split&rdquo; swing a reported score by up to
-      0.185 AUC.</b> Neither is in anyone&rsquo;s methods section.</li>
-    <li><b>Which choice matters is dataset-dependent</b>, and it tracks a statistic you can compute
-      in ten seconds. On the dataset where 22.7% of molecules have no scaffold, the acyclic policy
-      is everything and group ordering is inert. On another dataset the reverse.</li>
+      0.185 AUC.</b> Neither one appears in anybody&rsquo;s methods section.</li>
+    <li><b>Which choice matters is dataset-dependent.</b> It tracks a statistic you can compute in
+      ten seconds. On the dataset where 22.7% of molecules have no scaffold, the acyclic policy is
+      everything and group ordering does nothing. On another dataset it&rsquo;s the other way
+      round.</li>
     <li><b>Split distance predicts the reported score</b> (pooled Spearman +0.67, p &asymp;
-      9&times;10<sup>&minus;6</sup>) &mdash; so this is not a geometric curiosity, it&rsquo;s your
+      9&times;10<sup>&minus;6</sup>). This is not a geometric curiosity. It&rsquo;s your
       leaderboard.</li>
   </ol>
   <p>
-    I also got a fourth result by auditing my own first draft, which had a confounded comparison in
-    it. That story is at the end, because it&rsquo;s the most useful part.
+    There&rsquo;s a fourth result that came out of auditing my own first draft, which had a
+    confounded comparison sitting in it. That story is at the end, because it&rsquo;s the most
+    useful part.
   </p>
 </section>
 
@@ -282,29 +284,29 @@ sup{font-size:.7em}
       (<a href="https://pubs.acs.org/doi/10.1021/acs.jcim.7b00403">JCIM</a>,
       <a href="https://arxiv.org/abs/1706.06619">arXiv:1706.06619</a>)</li>
     <li><b>Steshin&rsquo;s Lo-Hi benchmark (NeurIPS 2023)</b> makes essentially the measurement
-      below and reports that under a recommended scaffold split, 78% of test molecules still have a
+      below, and reports that under a recommended scaffold split, 78% of test molecules still have a
       training neighbour above 0.4 Tanimoto.
       (<a href="https://arxiv.org/abs/2310.06399">arXiv:2310.06399</a>)</li>
     <li><b>Yang et al. (2019)</b>, the chemprop paper, already randomizes scaffold-set assignment in
-      its <code>scaffold_balanced</code> splitter &mdash; so the fact that assignment order is a
-      free choice is documented, not discovered.
+      its <code>scaffold_balanced</code> splitter. So the fact that assignment order is a free
+      choice is documented, not discovered.
       (<a href="https://pubs.acs.org/doi/10.1021/acs.jcim.9b00237">JCIM</a>,
       <a href="https://arxiv.org/abs/1904.01561">arXiv:1904.01561</a>)</li>
   </ul>
   <p>
     So &ldquo;scaffold splits leak&rdquo; is old news. What I couldn&rsquo;t find anywhere was a
-    number for <b>what the undocumented choices cost you</b> &mdash; held constant one at a time,
-    over multiple seeds, with a model attached. That&rsquo;s what follows.
+    number for <b>what the undocumented choices cost you</b>, held constant one at a time, over
+    multiple seeds, with a model attached. That&rsquo;s what follows.
   </p>
 </section>
 
 <section>
-  <h2>First: what a scaffold actually is</h2>
+  <h2>What a scaffold actually is</h2>
   <p>
-    Bemis and Murcko (1996) split a molecule into four disjoint parts &mdash; <b>ring systems</b>,
+    Bemis and Murcko (1996) split a molecule into four disjoint parts: <b>ring systems</b>,
     <b>linkers</b> (the paths joining rings), <b>side chains</b>, and the <b>framework</b>, which is
     rings plus linkers with the side chains deleted. That framework is what everyone now means by
-    &ldquo;the scaffold.&rdquo; A scaffold split groups molecules by it, so no framework appears on
+    &ldquo;the scaffold.&rdquo; A scaffold split groups molecules by it, so no framework shows up on
     both sides of the split.
   </p>
   <p>Strip the side chains, then optionally strip the atom types as well:</p>
@@ -704,15 +706,15 @@ L 115.3 26.0
 <g transform="translate(542,291.5)"><line class="arw" x1="0" y1="0" x2="30" y2="0"/><path class="arwh" d="M 30 -4 L 38 0 L 30 4 Z"/><text class="al" x="19" y="-10" text-anchor="middle">atom types</text></g>
 </svg>
     <figcaption>
-      Two real molecules through the reduction. Aspirin keeps only its benzene ring &mdash; the
-      whole acetyl ester and the carboxylic acid are side chains, so they vanish.
+      Two real molecules through the reduction. Aspirin keeps only its benzene ring. The whole
+      acetyl ester and the carboxylic acid count as side chains, so they vanish.
       <code>MakeScaffoldGeneric</code> then turns every atom into carbon and every bond into a
       single bond, which is the <em>generic framework</em> row in the tables below.
     </figcaption>
   </figure>
   <p>
-    Two consequences fall straight out of that definition, and between them they explain almost
-    everything in this post.
+    Two consequences fall straight out of that definition, and between them they explain most of
+    what follows.
   </p>
   <h3>Stripping side chains merges molecules that are not alike</h3>
   <figure class="chart">
@@ -729,7 +731,7 @@ L 115.3 26.0
 .note{fill:var(--ink-2,#4A4E58);font-size:11px}
 .hl{fill:var(--leak,#9B3B24);font-size:11px;font-weight:600}
 </style>
-<text class="note" x="40" y="16">These four Tox21 molecules are chemically unalike &#8212; and Murcko says they are the same group.</text>
+<text class="note" x="40" y="16">These four Tox21 molecules are chemically unalike, and Murcko says they are the same group.</text>
 <g transform="translate(40,30)">
 <rect class="cell" x="0" y="0" width="210" height="165" rx="3"/>
 <text class="ct" x="105.0" y="18" text-anchor="middle">molecule 1</text>
@@ -1329,12 +1331,11 @@ L 156.8 65.4
 <text class="hl" x="1042" y="217" text-anchor="middle">1,474 Tox21 molecules land here</text>
 </svg>
     <figcaption>
-      An anaesthetic-like amide, a polychlorinated dinitrile, a bromo-fluoroarene and a
-      nitro-aniline. Every ring here is a plain benzene, so every side chain is deleted and all four
-      reduce to <code>c1ccccc1</code>. <b>1,474 Tox21 molecules &mdash; 18.8% of the dataset &mdash;
+      An anaesthetic-like amide, a polychlorinated dinitrile, a bromo-fluoroarene, a nitro-aniline. Every ring here is a plain benzene, so every side chain is deleted and all four
+      reduce to <code>c1ccccc1</code>. <b>1,474 Tox21 molecules, 18.8% of the dataset,
       collapse into that one group</b>, which then has to move to one side of the split as a single
       indivisible block. Mean pairwise similarity inside it is 0.152, against 0.082 for the dataset
-      as a whole: barely more coherent than a random sample.
+      as a whole. Barely more coherent than a random sample.
     </figcaption>
   </figure>
   <h3>And a molecule with no ring has no scaffold at all</h3>
@@ -1352,7 +1353,7 @@ L 156.8 65.4
 .note{fill:var(--ink-2,#4A4E58);font-size:11px}
 .hl{fill:var(--leak,#9B3B24);font-size:11px;font-weight:600}
 </style>
-<text class="note" x="40" y="16">No ring means no framework. RDKit returns the empty string &#8212; and every implementation then invents its own answer.</text>
+<text class="note" x="40" y="16">No ring means no framework. RDKit returns the empty string, and every implementation then invents its own answer.</text>
 <g transform="translate(40,30)">
 <rect class="cell" x="0" y="0" width="210" height="165" rx="3"/>
 <text class="ct" x="105.0" y="18" text-anchor="middle">acyclic molecule</text>
@@ -1788,10 +1789,10 @@ Q 156.3 93.7, 157.4 93.7
 </g>
 </svg>
     <figcaption>
-      There is no framework to extract, so <code>MurckoScaffoldSmiles</code> returns the empty
-      string. It is not an error and nothing warns you. On Tox21 this is <b>22.7% of the
-      dataset</b> &mdash; and what happens to those molecules next is the single largest lever in
-      this whole post.
+      There&rsquo;s no framework to extract, so <code>MurckoScaffoldSmiles</code> returns the empty
+      string. It isn&rsquo;t an error and nothing warns you. On Tox21 that&rsquo;s <b>22.7% of the
+      dataset</b>, and what happens to those molecules next turns out to be the single biggest
+      lever in this whole post.
     </figcaption>
   </figure>
 </section>
@@ -1810,8 +1811,8 @@ nn = [max(DataStructs.BulkTanimotoSimilarity(fps[i], train_fps)) for i in test_i
 
 print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
   <p>
-    The mean is a summary; the distribution is the story. Here are three splits of the same 4,200
-    ChEMBL compounds (MoleculeNet Lipophilicity):
+    The mean is a summary; the distribution is the story. Three splits of the same 4,200 ChEMBL
+    compounds (MoleculeNet Lipophilicity):
   </p>
   <figure class="chart">
     <svg viewBox="0 0 880 380" width="100%" role="img" aria-label="Nearest-neighbour Tanimoto distributions for three splits of Lipophilicity" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
@@ -1857,9 +1858,9 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
 <text class="tl" x="97" y="76">Butina cluster split &#183; mean 0.378 &#183; 0.3% &#8805;0.8</text>
 </svg>
     <figcaption>
-      The random split puts <b>21.9% of test molecules within 0.8 Tanimoto of something in
-      training</b> &mdash; including a spike at 1.0, molecules whose fingerprint is identical to a
-      training example. A scaffold split cuts that to 6.2%. A Butina cluster split cuts it to 0.3%.
+      The random split leaves <b>21.9% of test molecules within 0.8 Tanimoto of something in
+      training</b>, including a spike at 1.0 where the fingerprint is identical to a training
+      example. A scaffold split cuts that to 6.2%. A Butina cluster split cuts it to 0.3%.
     </figcaption>
   </figure>
 </section>
@@ -1881,18 +1882,17 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
         <tr><td>Random</td><td class="num">0.563 ± .010</td><td class="num">0.631 ± .008</td><td class="num">0.575 ± .002</td><td class="num">0.603 ± .004</td></tr>
         <tr><td>Scaffold, acyclic = own group</td><td class="num">0.450 ± .040</td><td class="num">0.556 ± .004</td><td class="num">0.505 ± .005</td><td class="num">0.533 ± .004</td></tr>
         <tr><td>Scaffold, acyclic = pooled</td><td class="num">0.474 ± .034</td><td class="num">0.557 ± .008</td><td class="num"><b>0.413 ± .077</b></td><td class="num">0.533 ± .004</td></tr>
-        <tr><td>Scaffold, acyclic = Butina</td><td class="num">0.442 ± .024</td><td class="num">0.556 ± .004</td><td class="num">0.468 ± .010</td><td class="num">—</td></tr>
+        <tr><td>Scaffold, acyclic = Butina</td><td class="num">0.442 ± .024</td><td class="num">0.556 ± .004</td><td class="num">0.468 ± .010</td><td class="num">n/a</td></tr>
         <tr><td>Scaffold, pooled + DeepChem order</td><td class="num">0.436</td><td class="num">0.520</td><td class="num">0.398</td><td class="num">0.437</td></tr>
         <tr><td>Generic framework</td><td class="num">0.439 ± .028</td><td class="num">0.512 ± .020</td><td class="num">0.506 ± .017</td><td class="num">0.517 ± .006</td></tr>
-        <tr><td>Butina cluster (0.4)</td><td class="num">0.389 ± .016</td><td class="num">0.384 ± .012</td><td class="num">0.460 ± .011</td><td class="num">—</td></tr>
+        <tr><td>Butina cluster (0.4)</td><td class="num">0.389 ± .016</td><td class="num">0.384 ± .012</td><td class="num">0.460 ± .011</td><td class="num">n/a</td></tr>
       </tbody>
     </table>
   </div>
   <p>
-    Two things jump out. The scaffold rows are not one row &mdash; they span 0.398 to 0.505 on Tox21
-    alone, all of them legitimately called &ldquo;a scaffold split.&rdquo; And one arm has a
-    standard deviation of 0.077, which is larger than most of the differences people report between
-    methods.
+    Look at the scaffold rows. They span 0.398 to 0.505 on Tox21 alone, and every one of them would
+    go into a paper as &ldquo;a scaffold split.&rdquo; One arm also carries a standard deviation of
+    0.077, which is bigger than most of the differences people publish between methods.
   </p>
 </section>
 
@@ -1900,14 +1900,14 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
   <h2>Choice #1: what you do with molecules that have no scaffold</h2>
   <p>
     <code>MurckoScaffoldSmiles</code> returns <code>""</code> for any molecule with no ring.
-    There&rsquo;s no principled scaffold for ethanol, and implementations disagree:
+    There&rsquo;s no principled scaffold for ethanol, and implementations disagree about what to do:
   </p>
   <ul>
     <li><b>DeepChem&rsquo;s <code>ScaffoldSplitter</code></b> keys on the returned string, so every
       acyclic molecule lands in <b>one shared group</b> that moves as a unit.</li>
     <li><b>The common alternative</b> falls back to the molecule&rsquo;s own SMILES, giving each
-      acyclic its own group &mdash; i.e. a random split for that slice.</li>
-    <li><b>Or</b> cluster them by fingerprint, which is what I&rsquo;d argue for.</li>
+      acyclic its own group, which is a random split for that slice.</li>
+    <li><b>Or</b> you cluster them by fingerprint, which is what I&rsquo;d argue for.</li>
   </ul>
   <p>Holding assignment order fixed (shuffled, 5 seeds) and changing <em>only</em> this:</p>
   <div class="tscroll">
@@ -1921,19 +1921,19 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
       </tbody>
     </table>
   </div>
-  <p class="note">BBBP / Tox21 / HIV are AUC; Lipophilicity is Spearman ρ.</p>
+  <p class="note">BBBP, Tox21 and HIV are AUC. Lipophilicity is Spearman ρ.</p>
   <p>
-    On Tox21 this single undocumented choice is worth <b>0.185 AUC</b> &mdash; larger than the gap
-    between most published methods on this benchmark. On Lipophilicity it&rsquo;s worth nothing,
+    On Tox21 this one undocumented choice is worth <b>0.185 AUC</b>, larger than the gap between
+    most published methods on that benchmark. On Lipophilicity it&rsquo;s worth nothing at all,
     because Lipophilicity is 0.1% acyclic.
   </p>
   <div class="callout">
-    <div class="h">The error bars matter as much as the means</div>
+    <div class="h">The error bars deserve as much attention as the means</div>
     <p>
-      Pooling acyclics on Tox21 creates one 1,775-molecule mega-group; whichever side of the split
-      it lands on dominates everything else, giving <b>±0.126 AUC across seeds</b>. That
-      configuration isn&rsquo;t merely harder &mdash; it&rsquo;s <em>unstable</em>, and a
-      single-seed paper would never see it.
+      Pooling acyclics on Tox21 creates one 1,775-molecule mega-group, and whichever side of the
+      split it lands on dominates everything else, which gives you <b>±0.126 AUC across seeds</b>.
+      The problem with that configuration isn&rsquo;t difficulty. It&rsquo;s instability, and a
+      single-seed paper would never notice.
     </p>
   </div>
 </section>
@@ -1942,14 +1942,14 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
   <h2>Choice #2: how you break ties between equal-sized scaffold groups</h2>
   <p>
     DeepChem sorts scaffold groups largest-first. But roughly <b>75% of scaffold groups contain
-    exactly one molecule</b> &mdash; on every dataset here, from 2k to 41k compounds &mdash; so
+    exactly one molecule</b>, and that holds on every dataset here, from 2k to 41k compounds. So
     &ldquo;sort by size&rdquo; leaves most of the ordering undetermined. Something has to break the
     ties, and that something is an implementation detail.
   </p>
   <p>DeepChem breaks them by first-index descending:</p>
 <pre><code>scaffold_sets = [s for (scaffold, s) in sorted(
     scaffolds.items(), key=lambda x: (len(x[1]), x[1][0]), reverse=True)]</code></pre>
-  <p>Change only that tie-break, holding the grouping rule and the size ordering fixed:</p>
+  <p>Change only the tie-break, holding the grouping rule and the size ordering fixed:</p>
   <div class="tscroll">
     <table>
       <thead><tr><th>Dataset</th><th class="num">DeepChem tie-break</th><th class="num">Different tie-break</th></tr></thead>
@@ -1957,19 +1957,20 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
         <tr><td>Lipophilicity</td><td class="num">0.580</td><td class="num">0.564</td></tr>
         <tr><td>Tox21</td><td class="num">0.746</td><td class="num">0.744</td></tr>
         <tr><td>HIV</td><td class="num">0.779</td><td class="num">0.757</td></tr>
-        <tr class="hi"><td>BBBP</td><td class="num"><b>0.781</b></td><td class="num"><b>undefined</b> — test set is 100% positive</td></tr>
+        <tr class="hi"><td>BBBP</td><td class="num"><b>0.781</b></td><td class="num"><b>undefined</b> (test set is 100% positive)</td></tr>
       </tbody>
     </table>
   </div>
   <p>
-    On BBBP one tie-break gives a working benchmark and another gives a test set with no negatives
-    at all, so AUC cannot be computed. Same grouping rule, same sort key, same fractions.
+    On BBBP one tie-break gives you a working benchmark and the other gives you a test set with no
+    negatives in it, so AUC can&rsquo;t be computed. Same grouping rule, same sort key, same
+    fractions.
   </p>
   <div class="callout warn">
-    <div class="h">To be clear, because this gets misread</div>
+    <div class="h">Worth stating plainly, since this gets misread</div>
     <p>
-      <b>DeepChem&rsquo;s own tie-break is the good one here.</b> I found the degenerate case only
-      because I initially wrote the sort as <code>sorted(groups, key=len, reverse=True)</code>,
+      <b>DeepChem&rsquo;s own tie-break is the good one here.</b> I only found the degenerate case
+      because I&rsquo;d first written the sort as <code>sorted(groups, key=len, reverse=True)</code>,
       which leaves ties to dict insertion order. That&rsquo;s the natural way to write it, it looks
       equivalent, and it isn&rsquo;t.
     </p>
@@ -1990,39 +1991,39 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
         <tr><td>Scaffold, acyclic = own</td><td class="num">0.852 ± .048</td><td class="num">0.634 ± .024</td><td class="num">0.826 ± .081</td><td class="num">0.797 ± .037</td></tr>
         <tr><td>Scaffold, pooled + DeepChem order</td><td class="num">0.781</td><td class="num">0.580</td><td class="num">0.746</td><td class="num">0.779</td></tr>
         <tr><td>Generic framework</td><td class="num">0.878 ± .045</td><td class="num">0.579 ± .026</td><td class="num">0.754 ± .134</td><td class="num">0.792 ± .034</td></tr>
-        <tr><td>Butina cluster</td><td class="num">0.859 ± .026</td><td class="num">0.505 ± .045</td><td class="num">0.808 ± .103</td><td class="num">—</td></tr>
+        <tr><td>Butina cluster</td><td class="num">0.859 ± .026</td><td class="num">0.505 ± .045</td><td class="num">0.808 ± .103</td><td class="num">n/a</td></tr>
       </tbody>
     </table>
   </div>
   <p>
     Across all 36 (dataset, split) combinations, z-scored within dataset, mean NN Tanimoto
     correlates with the reported score at <b>Spearman +0.67, p &asymp;
-    9&times;10<sup>&minus;6</sup></b>. Per dataset it ranges from +0.88 on HIV and +0.85 on
-    Lipophilicity down to +0.39 on Tox21, which is not significant on its own. So: a strong pooled
-    relationship, not a law.
+    9&times;10<sup>&minus;6</sup></b>. Per dataset it runs from +0.88 on HIV and +0.85 on
+    Lipophilicity down to +0.39 on Tox21, which isn&rsquo;t significant on its own. Call it a
+    strong pooled relationship rather than a law.
   </p>
   <p>
-    And one honest anomaly &mdash; <b>on Tox21 the scaffold split scores <em>higher</em> than the
-    random split</b> (0.826 vs 0.810), the opposite of the standard story. It&rsquo;s within the
-    error bars, but it&rsquo;s there, and anyone claiming &ldquo;scaffold splits always lower your
-    score&rdquo; should look at it.
+    One anomaly worth flagging rather than burying. <b>On Tox21 the scaffold split scores
+    <em>higher</em> than the random split</b> (0.826 vs 0.810), which is the opposite of the
+    standard story. It sits inside the error bars, but it&rsquo;s there, and anyone who says
+    &ldquo;scaffold splits always lower your score&rdquo; should go and look at it.
   </p>
 </section>
 
 <section>
-  <h2>The trap I fell into: circular evaluation</h2>
+  <h2>The trap I fell into</h2>
   <p>
-    My first draft recommended Butina clustering on the strength of this: it drove near-duplicates
-    to 0.2&ndash;1.8% where scaffold splits left 2&ndash;9%.
+    My first draft recommended Butina clustering on the strength of one observation: it drove
+    near-duplicates down to 0.2% to 1.8%, where scaffold splits left 2% to 9%.
   </p>
   <p>
-    That recommendation was circular. I clustered molecules by Morgan/Tanimoto and then scored the
-    split by Morgan/Tanimoto nearest-neighbour distance. Butina wins that comparison because it
+    That recommendation was circular. I&rsquo;d clustered molecules by Morgan/Tanimoto and then
+    scored the resulting split by Morgan/Tanimoto nearest-neighbour distance. Butina wins that comparison because it
     directly optimises the thing being measured.
   </p>
   <p>
     The fix is to score with a fingerprint that had no part in building the split. Re-measuring with
-    MACCS keys &mdash; 166 substructure keys, a completely different basis:
+    MACCS keys, 166 substructure keys on a completely different basis:
   </p>
   <div class="tscroll">
     <table>
@@ -2031,21 +2032,21 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
         <tr><td>Random</td><td class="num">0.823</td><td class="num">0.872</td><td class="num">0.843</td><td class="num">0.869</td></tr>
         <tr><td>Scaffold, acyclic = own</td><td class="num">0.758</td><td class="num">0.843</td><td class="num">0.801</td><td class="num">0.840</td></tr>
         <tr><td>Scaffold, own + DeepChem order</td><td class="num"><b>0.718</b></td><td class="num">0.828</td><td class="num"><b>0.791</b></td><td class="num"><b>0.780</b></td></tr>
-        <tr><td>Butina cluster</td><td class="num">0.755</td><td class="num"><b>0.782</b></td><td class="num">0.792</td><td class="num">—</td></tr>
+        <tr><td>Butina cluster</td><td class="num">0.755</td><td class="num"><b>0.782</b></td><td class="num">0.792</td><td class="num">n/a</td></tr>
       </tbody>
     </table>
   </div>
   <p>
     Butina&rsquo;s advantage largely evaporates. On BBBP a plain DeepChem-ordered scaffold split
-    produces a <em>harder</em> test set (0.718) than Butina (0.755). On Tox21 they tie. Only on
-    Lipophilicity does Butina still clearly win.
+    produces a <em>harder</em> test set (0.718) than Butina does (0.755). On Tox21 they tie. Only
+    on Lipophilicity does Butina still clearly win.
   </p>
   <div class="callout warn">
     <div class="h">The rule</div>
     <p>
-      <b>If you build a split by optimising a similarity metric, you cannot evaluate that split with
-      the same metric.</b> I&rsquo;d have shipped this error if I hadn&rsquo;t had the draft torn
-      apart by a reader who spotted it.
+      <b>If you build a split by optimising a similarity metric, you can&rsquo;t then evaluate that
+      split with the same metric.</b> I&rsquo;d have shipped this error if a reader hadn&rsquo;t
+      torn the draft apart and spotted it.
     </p>
   </div>
 </section>
@@ -2053,55 +2054,57 @@ print(f"mean NN Tanimoto: {sum(nn) / len(nn):.3f}")</code></pre>
 <div class="takeaways">
   <h2>What to actually do</h2>
   <ol>
-    <li><b>Report mean NN Tanimoto and the ≥0.8 share next to your metric.</b> Twenty lines, and it
-      makes results comparable across papers that currently aren&rsquo;t.</li>
-    <li><b>Compute your acyclic fraction before you pick a scaffold splitter.</b> If it&rsquo;s over
-      ~10%, the acyclic policy is a bigger lever than the split family, and you must state which you
+    <li><b>Report mean NN Tanimoto and the ≥0.8 share next to your metric.</b> Twenty lines of code,
+      and it makes results comparable across papers that currently aren&rsquo;t.</li>
+    <li><b>Compute your acyclic fraction before you pick a scaffold splitter.</b> Above roughly 10%,
+      the acyclic policy is a bigger lever than the split family, and you need to say which one you
       used.</li>
-    <li><b>Run more than one seed, and report the spread.</b> Some of these configurations have
-      ±0.12 AUC seed variance. A single-seed comparison between two methods that differ by 0.02 is
+    <li><b>Run more than one seed and report the spread.</b> Some of these configurations carry
+      ±0.12 AUC of seed variance. A single-seed comparison between two methods separated by 0.02 is
       measuring nothing.</li>
     <li><b>Never evaluate a split with the metric that built it.</b> Score with an independent
       representation, or you&rsquo;ll conclude your clustering method is the best splitter, which it
       will be, by construction.</li>
     <li><b>Scope your negative results.</b> If you ran an ablation on a split whose test molecules
-      sat at 0.60 mean similarity to train, you have evidence about the interpolation regime. You do
-      not have evidence about extrapolation, because it was never on your test set. That
+      sat at 0.60 mean similarity to train, you have evidence about the interpolation regime. You
+      don&rsquo;t have evidence about extrapolation, because extrapolation was never on your test
+      set. That
       doesn&rsquo;t make the result wrong. It makes it narrower than the sentence you wrote about
       it.</li>
   </ol>
   <p>
-    The measurement takes a minute. Run it before you trust the split&rsquo;s name &mdash;
-    especially when the name is the reassuring one.
+    The measurement takes a minute. Run it before you trust the split&rsquo;s name, especially when
+    the name is the reassuring one.
   </p>
 </div>
 
 <section>
-  <h2>Coda: I published the confound first</h2>
+  <h2>I published the confound first</h2>
   <p>
     The first version of this post claimed that group <em>ordering</em> was the big undocumented
     lever, and quoted a 0.078 swing on Tox21 as proof.
   </p>
   <p>
     That comparison was confounded. My &ldquo;random order&rdquo; arm gave every acyclic molecule
-    its own group; my &ldquo;DeepChem order&rdquo; arm pooled them. The two arms differed in
-    <b>grouping rule as well as ordering</b> &mdash; and I headlined the effect on Tox21, the one
-    dataset out of four where 22.7% acyclics made that confound maximal. On the other three the
-    ordering effect was 0.015&ndash;0.029, not 0.078.
+    its own group, while my &ldquo;DeepChem order&rdquo; arm pooled them. The two arms differed in
+    <b>grouping rule as well as ordering</b>. And I&rsquo;d headlined the effect on Tox21, the one
+    dataset out of four where 22.7% acyclics made that confound as large as it could possibly get.
+    On the other three the ordering effect came out between 0.015 and 0.029, nowhere near 0.078.
   </p>
   <p>
-    I&rsquo;d also labelled an arm &ldquo;DeepChem order&rdquo; without running DeepChem. When I
-    finally transcribed <code>ScaffoldSplitter</code> from the installed source and ran it properly,
-    the real algorithm behaved differently from my reimplementation &mdash; which is how I found the
-    tie-break result that&rsquo;s now the more interesting half of this post.
+    I&rsquo;d also labelled an arm &ldquo;DeepChem order&rdquo; without ever running DeepChem. When
+    I finally transcribed <code>ScaffoldSplitter</code> out of the installed source and ran it
+    properly, the real algorithm behaved differently from my reimplementation. That&rsquo;s how I
+    found the tie-break result, which is now the more interesting half of this post.
   </p>
   <p>
-    The irony is not lost on me. A post arguing that you should measure your split instead of
-    trusting its label, containing a comparison whose label didn&rsquo;t match what it measured.
+    So: a post telling you to measure your split instead of trusting its label, with a comparison in
+    it whose label didn&rsquo;t match what it measured. I&rsquo;d rather say that out loud than
+    quietly fix it and move on.
   </p>
   <p class="lede">
-    That&rsquo;s the actual lesson, and it&rsquo;s cheaper to learn from my draft than your paper:
-    the mislabelled arm looked completely fine until someone ran the code.
+    Cheaper to learn from my draft than from your paper: the mislabelled arm looked completely fine
+    until someone ran the code.
   </p>
 </section>
 
@@ -2113,19 +2116,22 @@ https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/Lipophilicity.csv
 https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz
 https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/HIV.csv</code></pre>
   <ul>
-    <li><a href="split_audit.py"><code>split_audit.py</code></a> &mdash; the full audit: grouping and
+    <li><a href="split_audit.py"><code>split_audit.py</code></a> is the full audit: grouping and
       ordering as orthogonal axes, 5 seeds, MACCS cross-check, RF training.</li>
-    <li><a href="verify_deepchem.py"><code>verify_deepchem.py</code></a> &mdash; DeepChem&rsquo;s
-      <code>ScaffoldSplitter</code> transcribed verbatim and run under its own defaults, to check my
-      reimplementation.</li>
-    <li><a href="make_histogram.py"><code>make_histogram.py</code></a> &mdash; the distribution figure.</li>
-    <li><a href="audit_results.json"><code>audit_results.json</code></a> &mdash; every number in this post.</li>
+    <li><a href="verify_deepchem.py"><code>verify_deepchem.py</code></a> transcribes DeepChem&rsquo;s
+      <code>ScaffoldSplitter</code> verbatim and run under its own defaults, to check my
+      reimplementation against the real thing.</li>
+    <li><a href="make_histogram.py"><code>make_histogram.py</code></a>,
+      <a href="make_spread.py"><code>make_spread.py</code></a> and
+      <a href="make_scaffold_figs.py"><code>make_scaffold_figs.py</code></a> build the figures. The
+      molecule drawings are RDKit depictions of real dataset entries, not illustrations.</li>
+    <li><a href="audit_results.json"><code>audit_results.json</code></a> holds every number in this post.</li>
   </ul>
   <p>
     Needs <code>rdkit</code>, <code>pandas</code>, <code>numpy</code>, <code>scikit-learn</code>,
-    <code>scipy</code>. RDKit 2022.09+ for <code>rdFingerprintGenerator</code>. Butina is skipped
-    above 15,000 molecules &mdash; the distance matrix is O(n²) &mdash; so the Butina and hybrid rows
-    are absent for HIV.
+    <code>scipy</code>, and RDKit 2022.09+ for <code>rdFingerprintGenerator</code>. Butina is
+    skipped above 15,000 molecules, since the distance matrix is O(n²), so the Butina and hybrid
+    rows are missing for HIV.
   </p>
   <h3>References</h3>
   <ul class="refs">
