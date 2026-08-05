@@ -3,79 +3,58 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Writing · Sahasra Ranjan</title>
+<title>Writing &middot; Sahasra Ranjan</title>
 <meta name="description" content="Essays and notes on machine learning, cheminformatics and benchmark design by Sahasra Ranjan.">
 <link rel="icon" href="../assets/img/favicon.png">
-<style>
-:root{
-  color-scheme: light;
-  --paper:#F6F5F2; --paper-2:#FFFFFF;
-  --ink:#14161A; --ink-2:#4A4E58; --ink-3:#747984;
-  --rule:#D8D7D1; --accent:#2D4EC8;
-  --f-display:Charter,"Iowan Old Style","Palatino Linotype",Georgia,serif;
-  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --f-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  --pad:clamp(1.1rem,4vw,2.5rem);
-}
-@media (prefers-color-scheme: dark){
-  :root:where(:not([data-theme="light"])){
-    color-scheme: dark;
-    --paper:#16181C; --paper-2:#1D2026;
-    --ink:#E9E7E2; --ink-2:#A9AEBA; --ink-3:#7C818D;
-    --rule:#2E323A; --accent:#6E86DE;
-  }
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);
-  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
-.wrap{max-width:760px;margin:0 auto;padding:0 var(--pad) 6rem}
-a{color:var(--accent);text-underline-offset:2px}
-.topbar{display:flex;justify-content:space-between;padding:1.5rem 0 0;
-  font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-.topbar a{color:var(--ink-3);text-decoration:none}
-.topbar a:hover{color:var(--accent)}
-h1{font-family:var(--f-display);font-weight:600;font-size:clamp(2rem,5vw,2.8rem);
-  line-height:1.08;letter-spacing:-.015em;margin:clamp(2.5rem,7vw,4rem) 0 .8rem}
-.intro{color:var(--ink-2);max-width:58ch;margin:0 0 3rem}
-.post{display:block;text-decoration:none;color:inherit;border-top:1px solid var(--rule);
-  padding:1.6rem 0;display:flex;flex-direction:column;gap:.5rem}
-.post:hover .post-title{color:var(--accent)}
-.post-meta{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ink-3)}
-.post-title{font-family:var(--f-display);font-weight:600;font-size:1.4rem;line-height:1.2}
-.post-desc{color:var(--ink-2);font-size:.95rem;max-width:62ch}
-footer{margin-top:4rem;padding-top:1.3rem;border-top:1px solid var(--rule);
-  font-family:var(--f-mono);font-size:.71rem;color:var(--ink-3)}
-footer a{color:var(--ink-3)}
-</style>
+<link rel="canonical" href="https://www.sahasrarjn.com/blog/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Writing &middot; Sahasra Ranjan">
+<meta property="og:description" content="Notes on machine learning, cheminformatics and how benchmarks quietly mislead us.">
+
+<link rel="stylesheet" href="../assets/vendor/pico/pico.min.css">
+<link rel="stylesheet" href="assets/blog.css">
+<script>
+  // set the stored theme before first paint, so there is no flash
+  (function(){try{var m=localStorage.getItem('blog-theme');
+    if(m&&m!=='system')document.documentElement.setAttribute('data-theme',m);}catch(e){}})();
+</script>
 </head>
 <body>
-<div class="wrap">
 
-<div class="topbar">
+<header class="container topbar">
   <a href="../index.html">&larr; Sahasra Ranjan</a>
-  <span>Writing</span>
-</div>
-
-<h1>Writing</h1>
-<p class="intro">
-  Notes on machine learning, cheminformatics and how benchmarks quietly mislead us.
-</p>
-
-<a class="post" href="scaffold-splits/index.html">
-  <span class="post-meta">4 August 2026 &middot; Cheminformatics</span>
-  <span class="post-title">Your scaffold split is not one thing.</span>
-  <span class="post-desc">
-    Measured across four MoleculeNet datasets and five seeds: two implementation choices that no
-    paper reports swing a reported AUC by 0.185, and which one bites you depends on a property of
-    your data you probably haven&rsquo;t checked.
+  <span class="right">
+    <span>Writing</span>
+    <button id="theme-toggle" type="button">Auto</button>
   </span>
-</a>
+</header>
 
-<footer>
-  &copy; 2026 Sahasra Ranjan &middot; <a href="../index.html">sahasrarjn.github.io</a>
+<main class="container">
+
+  <hgroup>
+    <h1>Writing</h1>
+    <p>Notes on machine learning, cheminformatics and how benchmarks quietly mislead us.</p>
+  </hgroup>
+
+  <a class="post" href="scaffold-splits/index.html">
+    <span class="post-meta">4 August 2026 &middot; Cheminformatics</span>
+    <span class="post-title">Your scaffold split is not one thing.</span>
+    <span class="post-desc">
+      Measured across four MoleculeNet datasets and five seeds: two implementation choices that no
+      paper reports swing a reported AUC by 0.185, and which one bites you depends on a property of
+      your data you probably haven&rsquo;t checked.
+    </span>
+  </a>
+
+</main>
+
+<footer class="container site">
+  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="../index.html">sahasrarjn.com</a></span>
 </footer>
 
-</div>
+<script src="../assets/vendor/prism/prism-core.min.js"></script>
+<script src="../assets/vendor/prism/prism-python.min.js"></script>
+<script src="assets/blog.js"></script>
 </body>
 </html>

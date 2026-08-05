@@ -3,163 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Scaffold Split Is Not One Thing · Sahasra Ranjan</title>
+<title>Your Scaffold Split Is Not One Thing &middot; Sahasra Ranjan</title>
 <meta name="description" content="Two undocumented implementation choices inside a 'scaffold split' moved a reported AUC by 0.185 on one MoleculeNet dataset and did nothing on another. Measured across four datasets, five seeds, with a model attached.">
 <meta name="keywords" content="scaffold split, cheminformatics, RDKit, MoleculeNet, data leakage, machine learning, drug discovery">
 <meta name="author" content="Sahasra Ranjan">
 <link rel="icon" href="../../assets/img/favicon.png">
+<link rel="canonical" href="https://www.sahasrarjn.com/blog/scaffold-splits/">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Your Scaffold Split Is Not One Thing">
 <meta property="og:description" content="'Scaffold split' is not one thing. Two choices no paper reports swing a reported AUC by 0.185, and which one bites you depends on your data.">
+<meta property="og:image" content="https://www.sahasrarjn.com/blog/scaffold-splits/img/png/spread.png">
 <meta name="twitter:card" content="summary_large_image">
 
-<style>
-:root{
-  color-scheme: light;
-  --paper:#F6F5F2; --paper-2:#FFFFFF; --paper-3:#EDECE7;
-  --ink:#14161A; --ink-2:#4A4E58; --ink-3:#747984;
-  --rule:#D8D7D1; --rule-2:#C4C3BC;
-  --accent:#2D4EC8; --accent-soft:#E4E8F8;
-  --leak:#9B3B24; --leak-soft:#F4E4DE;
-  --f-display:Charter,"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
-  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --f-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  --measure:68ch;
-  --pad:clamp(1.1rem,4vw,2.5rem);
-}
-@media (prefers-color-scheme: dark){
-  :root:where(:not([data-theme="light"])){
-    color-scheme: dark;
-    --paper:#16181C; --paper-2:#1D2026; --paper-3:#23262D;
-    --ink:#E9E7E2; --ink-2:#A9AEBA; --ink-3:#7C818D;
-    --rule:#2E323A; --rule-2:#3D424C;
-    --accent:#6E86DE; --accent-soft:#1E2740;
-    --leak:#CB7A5E; --leak-soft:#35211A;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme: dark;
-  --paper:#16181C; --paper-2:#1D2026; --paper-3:#23262D;
-  --ink:#E9E7E2; --ink-2:#A9AEBA; --ink-3:#7C818D;
-  --rule:#2E323A; --rule-2:#3D424C;
-  --accent:#6E86DE; --accent-soft:#1E2740;
-  --leak:#CB7A5E; --leak-soft:#35211A;
-}
-
-*{box-sizing:border-box}
-body{
-  margin:0; background:var(--paper); color:var(--ink);
-  font-family:var(--f-body); font-size:17px; line-height:1.65;
-  -webkit-font-smoothing:antialiased; overflow-x:hidden;
-}
-.wrap{max-width:1080px;margin:0 auto;padding:0 var(--pad) 6rem}
-h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0}
-h1{font-size:clamp(2.1rem,5.2vw,3.35rem);line-height:1.06;letter-spacing:-.017em}
-h2{font-size:clamp(1.5rem,3.1vw,2rem);line-height:1.14;letter-spacing:-.012em}
-h3{font-size:1.16rem;line-height:1.3}
-p{margin:0}
-a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
-a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
-
-.topbar{
-  display:flex;justify-content:space-between;align-items:center;gap:1rem;
-  padding:1.5rem 0 0;font-family:var(--f-mono);font-size:.72rem;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
-}
-.topbar a{color:var(--ink-3);text-decoration:none}
-.topbar a:hover{color:var(--accent)}
-
-.masthead{padding:clamp(2.4rem,7vw,4.5rem) 0 0;display:flex;flex-direction:column;gap:1.5rem}
-.kicker{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
-.standfirst{font-size:1.14rem;color:var(--ink-2);max-width:62ch;font-style:italic}
-.byline{
-  font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3);
-  display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;padding-top:1.2rem;border-top:1px solid var(--rule);
-}
-
-section{margin-top:clamp(2.8rem,6vw,4.2rem);display:flex;flex-direction:column;gap:1.25rem}
-section>p,section>h2,section>h3,section>ul,section>ol,section>.eyebrow,section>details,section>.callout{max-width:var(--measure)}
-section ul,section ol{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:.65rem}
-.lede{font-family:var(--f-display);font-size:1.2rem;line-height:1.5}
-
-hr{border:none;border-top:1px solid var(--rule);margin:0}
-
-code{font-family:var(--f-mono);font-size:.87em;background:var(--paper-3);padding:.1em .34em;border-radius:3px;overflow-wrap:anywhere}
-pre{
-  margin:0;overflow-x:auto;background:var(--paper-2);border:1px solid var(--rule);
-  padding:1rem 1.1rem;font-family:var(--f-mono);font-size:.78rem;line-height:1.65;color:var(--ink);
-  max-width:min(100%,92ch);
-}
-pre code{background:none;padding:0;font-size:inherit}
-
-figure{margin:.4rem 0 0;display:flex;flex-direction:column;gap:.7rem}
-figure img{width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:2px}
-figcaption{font-size:.84rem;color:var(--ink-3);max-width:72ch}
-
-.tscroll{overflow-x:auto;border:1px solid var(--rule);background:var(--paper-2)}
-table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:34rem}
-th,td{text-align:left;padding:.52rem .75rem;border-bottom:1px solid var(--rule)}
-thead th{
-  font-family:var(--f-mono);font-size:.64rem;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule-2);white-space:nowrap;vertical-align:bottom;
-}
-tbody tr:last-child td{border-bottom:none}
-td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
-td.num b{color:var(--leak)}
-tbody tr.hi{background:var(--accent-soft)}
-
-.callout{
-  border:1px solid var(--rule);border-left:3px solid var(--accent);background:var(--accent-soft);
-  padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.5rem;
-}
-.callout .h{font-family:var(--f-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
-.callout p{font-size:.93rem}
-
-.takeaways{
-  margin-top:2.4rem;background:var(--paper-2);border:1px solid var(--rule);border-left:3px solid var(--accent);
-  padding:clamp(1.3rem,3.4vw,2rem);display:flex;flex-direction:column;gap:1rem;
-}
-.takeaways h2{font-size:1.3rem}
-.takeaways ol{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:.7rem}
-.takeaways li::marker{font-family:var(--f-mono);font-size:.82em;color:var(--accent)}
-
-footer{
-  margin-top:4rem;padding-top:1.3rem;border-top:1px solid var(--rule);
-  font-family:var(--f-mono);font-size:.71rem;color:var(--ink-3);
-  display:flex;flex-direction:column;gap:.45rem;line-height:1.7;
-}
-footer a{color:var(--ink-3)}
-
-.note{font-size:.82rem;color:var(--ink-3);margin-top:-.5rem}
-.callout.warn{border-left-color:var(--leak);background:var(--leak-soft)}
-.callout.warn .h{color:var(--leak)}
-figure.chart{background:var(--paper-2);border:1px solid var(--rule);padding:clamp(.9rem,2.4vw,1.4rem)}
-figure.chart svg{display:block;width:100%;height:auto}
-ul.refs{font-size:.88rem;color:var(--ink-2);gap:.45rem}
-sup{font-size:.7em}
-</style>
+<link rel="stylesheet" href="../../assets/vendor/pico/pico.min.css">
+<link rel="stylesheet" href="../assets/blog.css">
+<script>
+  // set the stored theme before first paint, so there is no flash
+  (function(){try{var m=localStorage.getItem('blog-theme');
+    if(m&&m!=='system')document.documentElement.setAttribute('data-theme',m);}catch(e){}})();
+</script>
 </head>
 <body>
-<div class="wrap">
 
-<div class="topbar">
+<div id="progress"></div>
+
+<header class="container topbar">
   <a href="../index.html">&larr; Writing</a>
-  <span>4 August 2026</span>
-</div>
-
-<header class="masthead">
-  <div class="kicker">Cheminformatics &middot; Benchmark design</div>
-  <h1>Your scaffold split is not one thing.</h1>
-  <p class="standfirst">
-    Two implementation choices that no paper reports moved a reported AUC by 0.185 on one dataset and did nothing on another. Which one bites you depends on a property of your data you probably haven&rsquo;t checked.
-  </p>
-  <div class="byline">
-    <span>Sahasra Ranjan</span>
-    <span>~11 min read</span>
-    <span>RDKit 2026.03.5 &middot; MoleculeNet &middot; 5 seeds</span>
-  </div>
+  <span class="right">
+    <span>4 August 2026</span>
+    <button id="theme-toggle" type="button">Auto</button>
+  </span>
 </header>
+
+<main class="container">
+<article>
+
+  <header>
+    <div class="kicker">Cheminformatics &middot; Benchmark design</div>
+    <h1>Your scaffold split is not one thing.</h1>
+    <p class="standfirst">Two implementation choices that no paper reports moved a reported AUC by 0.185 on one dataset and did nothing on another. Which one bites you depends on a property of your data you probably haven&rsquo;t checked.</p>
+    <div class="byline"><span>Sahasra Ranjan</span>
+    <span>~11 min read</span>
+    <span>RDKit 2026.03.5 &middot; MoleculeNet &middot; 5 seeds</span></div>
+  </header>
+
+  <details id="toc">
+    <summary>Contents</summary>
+  </details>
 
 <figure class="chart" style="margin-top:2rem">
 <svg viewBox="0 0 960 370" width="100%" role="img" aria-label="Spread of mean nearest-neighbour Tanimoto across six variants of a scaffold split, on four datasets" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
@@ -2144,11 +2035,16 @@ https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/HIV.csv</code></pre>
   </ul>
 </section>
 
-<footer>
-  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="../../index.html">sahasrarjn.github.io</a></span>
-  <span>All figures computed with RDKit 2026.03.5 on public MoleculeNet data, and drawn from the same JSON linked below.</span>
+</article>
+</main>
+
+<footer class="container site">
+  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="../../index.html">sahasrarjn.com</a></span>
+  <span>All figures computed with RDKit 2026.03.5 on public MoleculeNet data, and drawn from the same JSON linked above.</span>
 </footer>
 
-</div>
+<script src="../../assets/vendor/prism/prism-core.min.js"></script>
+<script src="../../assets/vendor/prism/prism-python.min.js"></script>
+<script src="../assets/blog.js"></script>
 </body>
 </html>
