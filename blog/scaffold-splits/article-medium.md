@@ -31,6 +31,15 @@ ASSETS, in the order they appear:
    9. img/png/table_4_model_scores.png
   10. img/png/table_5_maccs.png
 
+LINKS: the script links below are absolute URLs to the live copies
+on www.sahasrarjn.com, since relative links do not resolve on
+Medium. They are already published; nothing else to upload.
+
+CANONICAL: if you use the import route, Medium sets rel=canonical
+back to the original URL automatically, so the site version keeps
+the SEO credit. Pasting by hand does not do this; set it under
+story settings -> advanced if you care.
+
 CODE BLOCKS: Medium's own code blocks lose syntax colour. For the
 two Python snippets, either type ``` then space in the editor, or
 put them in a GitHub Gist and paste the gist URL on its own line,
@@ -234,6 +243,8 @@ Cheaper to learn from my draft than from your paper: **the mislabelled arm looke
 
 ## Reproducing this
 
+*This post first appeared at [www.sahasrarjn.com](https://www.sahasrarjn.com/blog/scaffold-splits/), where the figures are vector and the code links open in place.*
+
 MoleculeNet CSVs from DeepChem's S3 bucket:
 
 ```
@@ -243,11 +254,11 @@ https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz
 https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/HIV.csv
 ```
 
-- [`split_audit.py`](split_audit.py) is the full audit: grouping and ordering as orthogonal axes, 5 seeds, MACCS cross-check, RF training.
-- [`verify_deepchem.py`](verify_deepchem.py) transcribes DeepChem's `ScaffoldSplitter` verbatim and runs it under its own defaults, to check my reimplementation against the real thing.
-- [`make_histogram.py`](make_histogram.py), [`make_spread.py`](make_spread.py) and [`make_scaffold_figs.py`](make_scaffold_figs.py) build the figures. The molecule drawings are RDKit depictions of real dataset entries, not illustrations.
-- [`audit_results.json`](audit_results.json) holds every number in this post.
-- [`svg2png.sh`](svg2png.sh) renders the figures to PNG via headless Chrome, for places that won't take SVG (Medium among them).
+- [`split_audit.py`](https://www.sahasrarjn.com/blog/scaffold-splits/split_audit.py) is the full audit: grouping and ordering as orthogonal axes, 5 seeds, MACCS cross-check, RF training.
+- [`verify_deepchem.py`](https://www.sahasrarjn.com/blog/scaffold-splits/verify_deepchem.py) transcribes DeepChem's `ScaffoldSplitter` verbatim and runs it under its own defaults, to check my reimplementation against the real thing.
+- [`make_histogram.py`](https://www.sahasrarjn.com/blog/scaffold-splits/make_histogram.py), [`make_spread.py`](https://www.sahasrarjn.com/blog/scaffold-splits/make_spread.py) and [`make_scaffold_figs.py`](https://www.sahasrarjn.com/blog/scaffold-splits/make_scaffold_figs.py) build the figures. The molecule drawings are RDKit depictions of real dataset entries, not illustrations.
+- [`audit_results.json`](https://www.sahasrarjn.com/blog/scaffold-splits/audit_results.json) holds every number in this post.
+- [`svg2png.sh`](https://www.sahasrarjn.com/blog/scaffold-splits/svg2png.sh) renders the figures to PNG via headless Chrome, for places that won't take SVG (Medium among them).
 
 Needs `rdkit`, `pandas`, `numpy`, `scikit-learn`, `scipy`, and RDKit 2022.09+ for `rdFingerprintGenerator`. Butina is skipped above 15,000 molecules, since the distance matrix is O(n²), so the Butina and hybrid rows are missing for HIV.
 
