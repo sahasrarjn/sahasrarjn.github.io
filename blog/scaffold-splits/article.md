@@ -1,6 +1,6 @@
-# Stop Naming Your Splits. Start Measuring Them.
+# Your Scaffold Split Is Not One Thing
 
-*"Scaffold split" is not one thing. Two implementation choices that no paper reports moved a reported AUC by 0.19 on one dataset and did nothing on another — and which one bites you depends on a property of your data you probably haven't checked.*
+*Two implementation choices that no paper reports moved a reported AUC by 0.185 on one dataset and did nothing on another. Which one bites you depends on a property of your data you probably haven't checked.*
 
 ![Spread of mean nearest-neighbour Tanimoto across six variants of a scaffold split, on four datasets](img/spread.svg)
 
