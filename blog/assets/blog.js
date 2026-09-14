@@ -6,27 +6,27 @@
    emitted. Prism tokenises properly; blog.css colours the tokens from the
    theme palette.
 
-   Pico reads `data-theme` off <html>. With the attribute absent it follows the
-   OS, which is the third state of the toggle. The initial value is applied by
-   an inline script in <head> so the page never flashes the wrong theme. */
+   Pico reads `data-theme` off <html>. Pages ship with data-theme="light" and never
+   follow the OS setting: light is the default, dark is opt-in and remembered. The
+   stored choice is applied by an inline script in <head> so the page never flashes. */
 
 (function () {
   "use strict";
 
   var root = document.documentElement;
   var KEY = "blog-theme";
-  var ORDER = ["system", "light", "dark"];
-  var LABEL = { system: "Auto", light: "Light", dark: "Dark" };
+  var ORDER = ["light", "dark"];
+  var LABEL = { light: "Light", dark: "Dark" };
 
   // ------------------------------------------------------------- theme
 
   function stored() {
-    try { return localStorage.getItem(KEY) || "system"; } catch (e) { return "system"; }
+    // anything other than an explicit "dark" (nothing stored, or a legacy "system") is light
+    try { return localStorage.getItem(KEY) === "dark" ? "dark" : "light"; } catch (e) { return "light"; }
   }
 
   function apply(mode) {
-    if (mode === "system") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", mode);
+    root.setAttribute("data-theme", mode);
     try { localStorage.setItem(KEY, mode); } catch (e) { /* private browsing */ }
     var btn = document.getElementById("theme-toggle");
     if (btn) {
