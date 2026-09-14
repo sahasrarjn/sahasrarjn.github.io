@@ -331,9 +331,10 @@
       var items;
       try { items = spec.events(e).filter(function (it) { return it[0] != null; }); }
       catch (err) { items = []; }
-      var t0 = Math.min.apply(null, items.map(function (it) { return it[0]; }).concat([e.marks["A.start"] || e.marks["model.onset"] || 0]));
-      var t1 = Math.max.apply(null, items.map(function (it) { return it[0]; }));
-      var w0 = Math.max(0, Math.floor((t0 - 700) / 500) * 500), w1 = Math.min(e.duration_ms, t1 + 2600);
+      // the window comes from the data build, which cuts the audio clip to exactly this span:
+      // audio time 0 = w0, so the player clock, axis labels and event times all agree
+      var w0 = e.window[0], w1 = e.window[1];
+      function rel(t) { return t - w0; }
 
       var top = H("div", "tr-top");
       top.appendChild(H("span", "tr-title", typeof spec.title === "function" ? spec.title(e) : spec.title));
@@ -360,8 +361,8 @@
       env(e.user, lanes.u, "env-u");
       env(e.model, lanes.m, "env-m");
       S("line", { x1: L, x2: W - R, y1: 194, y2: 194, "class": "ax" }, svg);
-      for (var t = Math.ceil(w0 / 1000) * 1000; t <= w1; t += 1000) {
-        T("text", { x: x(t), y: 208, "text-anchor": "middle", "class": "tx" }, (t / 1000) + " s", svg);
+      for (var t = w0; t <= w1; t += 1000) {
+        T("text", { x: x(t), y: 208, "text-anchor": "middle", "class": "tx" }, ((t - w0) / 1000) + " s", svg);
       }
       var colors = { m: "var(--model)", u: "var(--user)", e: "var(--ended)" }, prev = -Infinity;
       items.forEach(function (it, i) {
@@ -378,17 +379,16 @@
       var body = H("div", "tr-body"), left = H("div"), right = H("div");
       var audio = H("audio"); audio.controls = true; audio.preload = "none"; audio.src = "audio/" + name + ".mp3";
       audio.addEventListener("timeupdate", function () {
-        var ms = audio.currentTime * 1000;
+        var ms = w0 + audio.currentTime * 1000;
         if (ms >= w0 && ms <= w1) { head.setAttribute("x1", x(ms)); head.setAttribute("x2", x(ms)); head.setAttribute("visibility", "visible"); }
         else head.setAttribute("visibility", "hidden");
       });
-      audio.addEventListener("play", function () { if (w0 > 0 && audio.currentTime * 1000 < w0 - 500) audio.currentTime = (w0 - 400) / 1000; });
       left.appendChild(audio);
       var ol = H("ol", "ev");
       items.forEach(function (it, i) {
         var li = H("li"), n = H("span", "n", String(i + 1));
         n.style.background = colors[it[1]]; if (it[1] === "m") n.style.color = "#1A201E";
-        li.appendChild(n); li.appendChild(H("span", "t", secs(it[0]))); li.appendChild(H("span", null, it[2]));
+        li.appendChild(n); li.appendChild(H("span", "t", secs(rel(it[0])))); li.appendChild(H("span", null, it[2]));
         ol.appendChild(li);
       });
       left.appendChild(ol);
