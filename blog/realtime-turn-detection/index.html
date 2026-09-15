@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Measuring turn detection in OpenAI&rsquo;s Realtime API &middot; Sahasra Ranjan</title>
-<meta name="description" content="I paused mid-sentence hundreds of times at OpenAI's realtime voice model and recorded what a listener hears. The default turn detector ends your turn at any pause over 0.6 s; the semantic one waits up to 8 s, and after a pause it judges only the last fragment you said.">
+<meta name="description" content="I measured 463 mid-sentence pauses across four OpenAI Realtime API turn-detection settings, including silent turn splits, semantic waits, fragment handling and interruptions.">
 <meta name="keywords" content="voice AI, realtime API, voice activity detection, turn-taking, semantic VAD, OpenAI, gpt-realtime, latency">
 <meta name="author" content="Sahasra Ranjan">
 <link rel="icon" href="/favicon.ico">
@@ -12,7 +12,7 @@
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Measuring turn detection in OpenAI&rsquo;s Realtime API">
-<meta property="og:description" content="What OpenAI's realtime turn-detection settings actually do, measured at the listener's ear: silent turn splits, 8-second waits, and why &ldquo;mm-hm&rdquo; stops the model cold.">
+<meta property="og:description" content="463 measured pauses show where OpenAI's Realtime API splits turns, how long semantic VAD waits, and what a listener actually hears.">
 <meta property="og:image" content="https://www.sahasrarjn.com/blog/realtime-turn-detection/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -43,7 +43,7 @@
   <header>
     <div class="kicker">Voice AI &middot; Measurement</div>
     <h1>Measuring turn detection in OpenAI&rsquo;s Realtime API</h1>
-    <p class="standfirst">A caller reading out a phone number paused after &ldquo;four one five,&rdquo; and OpenAI&rsquo;s realtime voice model decided the turn was over. I measured 463 pauses like that, recording what a listener would hear. The default turn detector ends a turn after about 0.6 seconds of quiet; the semantic one rarely interrupts an unfinished sentence, but it can wait eight seconds.</p>
+    <p class="standfirst">I measured 463 mid-sentence pauses across four turn-detection settings in OpenAI&rsquo;s realtime voice model. At 0.6 and 0.9 seconds, the default detector ended the turn in 43 of 44 trials, though none produced audible model speech. The semantic detector interrupted unfinished sentences less often, but some replies arrived after waits of about eight seconds.</p>
     <div class="byline"><span>Sahasra Ranjan</span>
     <span>~12 min read</span>
     <span>gpt-realtime-2.1 &middot; 567 sessions analyzed &middot; audio included</span></div>
@@ -56,89 +56,103 @@
 <figure class="chart trace" data-example="audible-cut-in" style="margin-top:2rem"></figure>
 
 <section>
-<p class="lede">A caller is reading out a phone number and pauses after &ldquo;four one five.&rdquo; Before they go on, the model starts answering, and what it says is the strange part: it politely tells the caller to finish. The model could tell the caller wasn&rsquo;t done. The system that decides whose turn it is had already handed it the floor. (The caller in that recording is a synthetic voice, as is every caller in this post. The model on the other end is real.)</p>
+<p class="lede">In the recording above, a synthetic caller pauses after &ldquo;four one five&rdquo; while reading a phone number. The model starts answering before the caller continues, then tells them to finish. The reply suggests that the model understood the sentence was incomplete, even though the turn detector had already ended the caller&rsquo;s turn.</p>
 
-<p>That failure starts with one decision every realtime voice product makes many times a second: <em>is this person done talking?</em> Decide too early and the system cuts them off. Decide too late and they wait in silence. A capable model still feels rude or slow when this boundary is wrong.</p>
+<p>A turn is one stretch in which a person speaks before the other side responds. Every realtime voice system has to decide where that stretch ends. An early decision cuts the speaker off; a late one leaves them waiting.</p>
 
-<p>OpenAI&rsquo;s Realtime API offers two turn detectors. <code>server_vad</code> is a timer. Once it sees <code>silence_duration_ms</code> of quiet (500 by default), it ends the turn. <code>semantic_vad</code> instead runs a classifier over the speech and waits longer when the utterance sounds unfinished. Its <code>eagerness</code> can be <code>low</code>, <code>medium</code>, <code>high</code> or <code>auto</code>. The documentation names the controls. It does not show what happens when someone pauses to remember the rest of a phone number.</p>
+<p>OpenAI&rsquo;s Realtime API offers two forms of VAD, or voice activity detection: the part that decides when speech starts and stops. <code>server_vad</code> uses silence, with <code>silence_duration_ms</code> set to 500 by default. <code>semantic_vad</code> uses a classifier that estimates whether the words sound complete.</p>
 
-<p>I built a harness that streams speech in real time, records both sides on one clock, and reconstructs when the model&rsquo;s audio would reach a listener. Then I ran the pause sweep. Four results:</p>
+<p>The semantic detector exposes an <code>eagerness</code> setting of <code>low</code>, <code>medium</code>, <code>high</code> or <code>auto</code>. OpenAI documents what those controls mean in broad terms. I wanted to measure what they do when someone pauses inside a sentence.</p>
+
+<p>I streamed synthetic speech in real time and put the outgoing and incoming audio on one clock. Four things came out of it:</p>
 
 <ol>
-  <li><strong>Server VAD ends your turn at any pause over ~0.6 s, and usually you never find out.</strong> The server commits the half-sentence, starts a reply, then cancels it when you continue. From about 1.5 s, you start hearing the model cut in. A half-read phone number and a finished question look the same to the timer.</li>
-  <li><strong>Semantic VAD rarely cuts into an unfinished sentence, but its waits have hard ceilings of roughly 2, 4 and 8 seconds.</strong> With <code>low</code> eagerness, the 90th-percentile wait after a finished sentence was 8.7 s.</li>
-  <li><strong>After a pause, semantic VAD appears to judge only the last fragment.</strong> &ldquo;Can you tell me what the capital of Australia is?&rdquo; gets a reply in 1.6 s. Put a 1.5-second pause before &ldquo;Australia is?&rdquo; and it waits 9.1 s &mdash; the same as sending &ldquo;Australia is?&rdquo; on its own.</li>
-  <li><strong>&ldquo;Mm-hm&rdquo; stops the model every time.</strong> 56 of 56 backchannels and interruptions stopped playback in under 0.2 s. With semantic VAD, a listener&rsquo;s &ldquo;yeah&rdquo; is followed by 4&ndash;5 seconds of silence.</li>
+  <li><strong>At 0.6 and 0.9-second pauses, server VAD ended 43 of 44 turns, but the listener heard no model speech.</strong> The user can hear a normal pause while the session history records a split turn and a cancelled response. At pauses of 1.5 seconds, the model starts to become audible.</li>
+  <li><strong>Semantic VAD interrupted unfinished clauses in only 1 or 2 of roughly 57 trials per setting.</strong> The tradeoff was delay. On <code>low</code>, the 90th-percentile wait after a finished sentence was 8.7 seconds.</li>
+  <li><strong>After a pause, semantic VAD behaved as if it judged the last fragment.</strong> An intact question got a reply in about 1.6 seconds. The same question with a pause before &ldquo;Australia is?&rdquo; took about 9.1 seconds, close to sending that fragment alone.</li>
+  <li><strong>Every backchannel and interruption stopped playback.</strong> All 56 clips stopped the model in under 0.2 seconds. With semantic VAD, some brief acknowledgments were followed by roughly 4 to 5 seconds of silence.</li>
 </ol>
 
-<p>I also got three parts of the measurement wrong before the results were ready, including a harness bug that made the model look silent when it had replied. I describe those mistakes near the end.</p>
+<p>I also found three mistakes in my measurement, including a harness bug that made replies look missing. I cover those at the end.</p>
 </section>
 
 <section>
-<h2>What prior benchmarks already tell us</h2>
+<h2>What existing benchmarks already show</h2>
 
-<p>Turn-taking is a busy research area in 2026. This experiment sits alongside useful prior work:</p>
+<p>There are already bigger turn-taking benchmarks, and this experiment is much narrower than them:</p>
 
 <ul>
-  <li><strong>TurnBench</strong> (Sesame, 2026) scores end-of-turn detectors on 30 hours of real two-person conversation, and already shows OpenAI&rsquo;s two detectors at opposite extremes: Server VAD catches 95.5% of turn ends but fires on 52.5% of non-ends; Semantic VAD fires on 1.8% but catches only 30.3%. (<a href="https://arxiv.org/abs/2608.25218">arXiv:2608.25218</a>)</li>
+  <li><strong>TurnBench</strong> (Sesame, 2026) scores end-of-turn detectors on 30 hours of real two-person conversation. OpenAI&rsquo;s Server VAD catches 95.5% of turn ends but fires on 52.5% of non-ends; Semantic VAD fires on 1.8% of non-ends but catches only 30.3% of turn ends. (<a href="https://arxiv.org/abs/2608.25218">arXiv:2608.25218</a>)</li>
   <li><strong>Full-Duplex-Bench</strong> (v1&ndash;v3) plays recorded users to speaking systems and scores pause handling, backchannels and interruptions. (<a href="https://arxiv.org/abs/2503.04721">arXiv:2503.04721</a>)</li>
-  <li><strong>OpenBenchmarks</strong> dials voice agents over real phone lines and found vendor-reported latency roughly 490 ms lower than what the call recording shows. (<a href="https://openbenchmarks.com/voice-agent-latency/how-voice-agent-latency-is-measured">method</a>)</li>
+  <li><strong>OpenBenchmarks</strong> dials voice agents over real phone lines. It found that latency reported by a platform was roughly 490 ms lower than latency read from the call recording. (<a href="https://openbenchmarks.com/voice-agent-latency/how-voice-agent-latency-is-measured">method</a>)</li>
 </ul>
 
-<p>I could not find a controlled sweep of a production API&rsquo;s <em>own</em> turn settings that aligned server events with audio at the listener&rsquo;s ear. That alignment exposes behavior the aggregate benchmarks do not: silent turn splits, timeout ceilings, and the fragment effect.</p>
+<p>I couldn&rsquo;t find a controlled sweep of a production API&rsquo;s turn settings that aligned server events with audio at the listener&rsquo;s ear. That alignment is what let me see silent turn splits, the observed timeout bands and the fragment effect.</p>
 </section>
 
 <section>
-<h2>How I measured it</h2>
+<h2>I measured both server events and what the listener heard</h2>
 
-<p>Each trial opens a fresh session and sends synthetic speech in real time. The harness breaks the speech into 20 ms frames and sends each frame when a microphone would have produced it.</p>
+<p>Each trial opened a fresh session and sent synthetic speech in real time. The harness broke the speech into 20 ms frames and sent each frame when a microphone would have produced it.</p>
 
-<p>The return path needs a different clock. A realtime server can send audio bytes faster than a speaker can play them, so arrival time tells me when the client received a chunk, not when the listener heard it. I place each chunk on an emulated playout timeline. When the user interrupts, the client follows <a href="https://developers.openai.com/api/docs/guides/realtime-conversations">OpenAI&rsquo;s recommendation</a>: it flushes playback and tells the server how much audio actually played.</p>
+<p>The return path needed a separate playback clock. A realtime server can send audio bytes faster than a speaker can play them, so arrival time says when the client received a chunk. Playout means when that queued chunk would actually reach the listener.</p>
 
-<p>Every trial leaves the same evidence: a stereo recording with the user on the left and model on the right, server events with arrival times, and the exact session config. Before calling the API, I calibrated the harness against a fake system with known timing. Its measured response gaps had a constant +10 ms offset with zero spread, which is the speech detector&rsquo;s resolution. The harness, every trial&rsquo;s events and every recording are <a href="https://github.com/sahasrarjn/turnprobe">on GitHub</a>.</p>
+<p>When the user interrupted, the client flushed audio that had not played. It also sent a truncate event, which removes that unheard audio from the conversation, following <a href="https://developers.openai.com/api/docs/guides/realtime-conversations">OpenAI&rsquo;s recommendation</a>.</p>
 
-<p>The main experiment is a <strong>pause sweep</strong>. I split twelve sentences in two. Six stop mid-clause (&ldquo;I&rsquo;d like to book a table for&hellip; four people at seven tonight&rdquo;), three are dictation (&ldquo;my phone number is four one five&hellip; five five five, zero one nine two&rdquo;), and three sound complete before the pause (&ldquo;I need to change my reservation.&hellip; It&rsquo;s under the name Jordan.&rdquo;). Two synthetic voices speak each sentence with 0.3, 0.6, 0.9, 1.5 or 2.5 seconds of silence between the halves, against four settings. I cut both halves from one continuous take so the first half keeps its unfinished prosody, then verified every cut by transcribing both halves. A network outage interrupted the sweep partway through; I re-ran the affected trials and dropped six where the harness itself fell behind real time, which leaves 463.</p>
+<p>Each trial left a stereo recording with the user on the left and model on the right, plus server events and the session configuration. Before calling the API, I calibrated the harness against a fake system with known timing. Its response gaps came out with a constant +10 ms offset and no spread, which is the resolution of my speech detector.</p>
+
+<p>The harness, events and recordings are <a href="https://github.com/sahasrarjn/turnprobe">on GitHub</a>.</p>
+
+<p>The main experiment was a <strong>pause sweep</strong>. I split twelve sentences in two: six unfinished clauses, three dictation examples and three whose first half sounded complete. Two synthetic voices spoke every sentence with 0.3, 0.6, 0.9, 1.5 or 2.5 seconds between the halves, against four settings.</p>
+
+<p>Both halves came from one continuous take, so the first half kept its unfinished prosody. I transcribed both halves to check every cut. A network outage hit partway through. 11 trials never completed, and I dropped 6 where my harness fell behind real time, which leaves 463 of the planned 480.</p>
 
 <div class="callout">
-  <div class="h">Two things measured per trial</div>
-  <p><b>Turn ended</b>: the server&rsquo;s own end-of-speech event lands inside the pause, meaning it has committed your half-sentence and started a reply. <b>You heard it</b>: model audio actually played before you finished speaking.</p>
+  <div class="h">Two outcomes per trial</div>
+  <p><b>Turn ended</b> means the server&rsquo;s end-of-speech event arrived during the pause. At that point it had committed the audio, meaning it added that half-sentence as a user turn, and started a reply. <b>You heard it</b> means model audio reached the emulated speaker before the user resumed.</p>
 </div>
 </section>
 
 <section>
-<h2>Server VAD: the silent split</h2>
+<h2>At 0.6 and 0.9 seconds, 43 of 44 turns split silently</h2>
 
-<p>The default is a 500 ms silence timer. In practice, the server&rsquo;s speech detector adds a little hangover, and the turn ends about 590 ms after sound stops. Pauses longer than that ended the turn in 88 of 89 trials.</p>
+<p>Server VAD uses a 500 ms silence setting by default. In these runs, the median commit came 586 ms after sound stopped. Pauses longer than that ended the turn in 88 of 89 trials.</p>
 
 <figure class="chart" id="fig-pauses">
-  <figcaption>Share of trials where the server ended the turn inside the pause (violet) and where the user heard the model before finishing (amber), by pause length. 22 to 24 trials per point (12 sentences &times; 2 voices, minus failed trials). Hover for counts and 95% intervals.</figcaption>
+  <figcaption>Trials in which the server ended the turn during the pause (violet), and trials in which model audio played before the user resumed (amber). Each point contains 22 to 24 trials. Hover for counts and 95% intervals.</figcaption>
 </figure>
 
-<p>The gap between the two lines is the hidden failure. At pauses of 0.6 and 0.9 seconds, the server ends the turn and starts generating, but the first audio takes another ~0.7 s to arrive. By then the user is speaking again, so the server cancels the reply before a sample plays. None of those 44 trials produced a single audible word. The user hears an ordinary pause; the session records two turns and a discarded response.</p>
+<p>The gap between the lines is a hidden split. At 0.6 and 0.9-second pauses, the turn ended in 43 of 44 trials. None produced audible model speech before the user continued.</p>
+
+<p>In the event logs, the server created a response after committing the first half. The user then resumed before audio played, and the response was cancelled. The listener heard an ordinary pause while the session recorded two user turns.</p>
 
 <figure class="chart trace" data-example="hidden-split"></figure>
 
-<p>Past about 1.5 seconds, the reply reaches the speaker before the user resumes, and the split becomes audible. That is what happened in the phone-number trial at the top of this post. The server ended the turn after &ldquo;four one five,&rdquo; and the model said:</p>
+<p>At pauses of about 1.5 seconds and longer, the reply had enough time to reach the speaker before the user resumed. That happened in the phone-number trial at the top of the post. After &ldquo;four one five,&rdquo; the model said:</p>
 
 <blockquote>&ldquo;I&rsquo;m here and listening. If you&rsquo;re still reading it out, go ahead and finish, and I&rsquo;ll respond when you&rsquo;re done.&rdquo;</blockquote>
 
-<p>The reply shows that the model understood the user had more to say. The timer had already handed it the floor. That timer has no access to meaning: it cut in about as often on unfinished clauses (17 of 56) and dictation (11 of 27) as on first halves that sounded complete (11 of 29).</p>
+<p>The reply suggests the model understood that the user had more to say. The silence detector had already ended the turn. Audible cut-ins occurred in 17 of 56 unfinished-clause trials, 11 of 27 dictation trials and 11 of 29 complete-sounding first halves.</p>
 </section>
 
 <section>
-<h2>Semantic VAD: patient, until it isn&rsquo;t</h2>
+<h2>Semantic VAD cuts in less, but some replies take about eight seconds</h2>
 
-<p>Semantic VAD fixes this where it matters most. On unfinished clauses it spoke early in only 1 or 2 of about 57 trials per setting, against 17 of 56 for server VAD. It still cut in on dictation and on first halves that sound complete, almost always after pauses of 1.5 s or more: 13 to 20 trials per setting out of about 116. That is defensible after &ldquo;I need to change my reservation,&rdquo; and less so halfway through a phone number. The bigger cost appears when the user really is finished:</p>
+<p>On unfinished clauses, semantic VAD spoke early in only 1 or 2 of roughly 57 trials per setting. Server VAD did so in 17 of 56. Across dictation and complete-sounding first halves, semantic VAD spoke early in 11 to 18 trials per setting.</p>
+
+<p>Those cut-ins happened only after pauses of 1.5 seconds or longer. Ending the turn after &ldquo;I need to change my reservation&rdquo; is understandable. Doing it halfway through a phone number is less useful.</p>
 
 <figure class="chart" id="fig-waits">
-  <figcaption>Silence between the end of the full sentence and the first audible reply, one dot per trial. Tick = median, open marker = 90th percentile. Across ten languages, people answer yes/no questions in about 0.2 s on average (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2705608/">Stivers et al., 2009</a>).</figcaption>
+  <figcaption>Time from the end of the full sentence to the first audible reply, one dot per trial. The tick is the median and the open marker is the 90th percentile. Across ten languages, people answer yes/no questions in about 0.2 seconds on average (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2705608/">Stivers et al., 2009</a>).</figcaption>
 </figure>
 
-<p>The replies fall into two clusters: a normal response around 1.5 s and a long tail. The server events explain why. Semantic VAD commits your audio almost as quickly as server VAD does (about 650 ms after you stop, against 590 ms); the added delay comes while the classifier decides whether the utterance is complete. If it decides the user is still going, it waits until a ceiling set by <code>eagerness</code>, and the ceilings are sharp: <b>95% of these waits ended within 2.0 s on <code>high</code>, and 99% within 3.95 s on <code>auto</code> and 7.95 s on <code>low</code></b>. OpenAI does not document these numbers; they come from the observed event timing.</p>
+<p>On every setting, half of the replies arrived within 2 seconds. The semantic settings also had a long tail. Semantic VAD committed the audio after about 650 ms, compared with 586 ms for server VAD. Most of its added delay came after that commit, while the classifier waited for more evidence that the utterance was complete.</p>
 
-<h3>It judges the last fragment</h3>
+<p>The waits formed clear timeout bands tied to <code>eagerness</code>. For <code>high</code>, 95% of classifier waits ended within 2.0 seconds. For <code>auto</code> and <code>low</code>, 99% ended within 3.95 and 7.95 seconds respectively. OpenAI documents that eagerness tunes a maximum timeout, but these measured timings are observations from this run, not documented guarantees.</p>
 
-<p>The surprising part was which trials reached the ceiling. &ldquo;Can you tell me what the capital of Australia is?&rdquo; is a finished question. Add a pause before &ldquo;Australia is?&rdquo; and semantic VAD waits as though it is unfinished. I ran the same sentence three ways, each in a fresh session.</p>
+<h3>After a pause, it behaved as if it judged the last fragment</h3>
+
+<p>&ldquo;Can you tell me what the capital of Australia is?&rdquo; is a complete question. When I inserted a pause before &ldquo;Australia is?&rdquo;, semantic VAD waited as though the final fragment were incomplete. I ran the sentence intact, split and with the second half alone, each in a fresh session.</p>
 
 <div class="tscroll">
 <table>
@@ -154,68 +168,74 @@
 </div>
 <p class="note">Time from the last word to the first audible reply. On <code>auto</code> the same pattern holds with the ~4 s ceiling: 1.5&ndash;1.6 s whole, 5.2&ndash;5.4 s for the fragment and the split. Every condition is in the <a href="https://github.com/sahasrarjn/turnprobe/tree/main/runs/20260913-225604-fragments-openai">run data</a>.</p>
 
-<p>When the second half sounds like a fragment on its own, the split sentence waits exactly as long as that fragment. The intact sentence returns quickly. A self-contained second half such as &ldquo;four people at seven tonight&rdquo; is fast either way. Voice also matters: the classifier treated &ldquo;Seattle this weekend?&rdquo; alone as finished in one voice and unfinished in the other.</p>
+<p>When the second half sounded incomplete by itself, the split sentence waited about as long as that fragment alone. The intact sentence returned quickly. A self-contained second half such as &ldquo;four people at seven tonight&rdquo; returned faster in both conditions.</p>
+
+<p>Voice mattered too. The classifier treated &ldquo;Seattle this weekend?&rdquo; alone as complete in one voice and incomplete in the other.</p>
 
 <figure class="chart trace" data-example="patient-wait"></figure>
 
-<p>I cannot inspect the classifier, so &ldquo;judges the last fragment&rdquo; remains an inference from behavior. It predicts every sentence in the sweep. The practical consequence is that <strong>the users most likely to pause mid-sentence, including people thinking, reading something out, or speaking a second language, are exactly the ones most likely to hit the eight-second wait.</strong></p>
+<p>I can&rsquo;t inspect the classifier, so the last-fragment explanation is an inference from behavior. The controlled examples support it, but they don&rsquo;t establish the internal mechanism. The practical result is narrower: a mid-sentence pause can leave semantic VAD evaluating a short fragment, and that can push the reply into the long timeout band.</p>
 </section>
 
 <section>
-<h2>Where the second goes</h2>
+<h2>Most setting-dependent delay happens before generation</h2>
 
-<p>The server reports when it decides the turn is over. That event lets me separate each reply into time spent deciding and time spent producing:</p>
+<p>The end-of-turn event lets me split each reply into time spent waiting for the turn detector and time spent producing the first audio:</p>
 
 <figure class="chart" id="fig-anatomy">
-  <figcaption>Median time from the true end of speech until the end-of-turn event reaches the client (includes the silence timer, the classifier and the network), and from that event to the first audio chunk. Playback adds about 20 ms more.</figcaption>
+  <figcaption>Median time from the true end of speech until the end-of-turn event reaches the client, followed by time from that event to the first audio chunk. The first interval includes the silence timer, classifier and network. Emulated playback adds about 20 ms.</figcaption>
 </figure>
 
-<p>The first audio takes about 0.7 s to produce on every setting. Nearly all the difference comes before that, while the turn detector waits. For this system, optimizing generation would leave most of the setting-dependent latency untouched.</p>
+<p>The first audio chunk took about 0.7 seconds after the end-of-turn event on every setting. The larger difference was before that event, while the turn detector waited. In this setup, faster generation would leave most of the latency difference between settings in place.</p>
 </section>
 
 <section>
-<h2>&ldquo;Mm-hm&rdquo; stops it cold</h2>
+<h2>Every backchannel stopped playback</h2>
 
-<p>The pause sweep tests when the model starts talking. A second experiment tests when it stops. I asked for a long, step-by-step wifi troubleshooting walkthrough. Then, 2.5 s after the model became audible, the user said one of seven things. Four were backchannels, the brief signals listeners use to mean <em>keep going</em>: &ldquo;Mm-hmm,&rdquo; &ldquo;Yeah,&rdquo; &ldquo;Okay,&rdquo; and &ldquo;Right, right.&rdquo; Three were actual interruptions: &ldquo;Wait, stop,&rdquo; &ldquo;Sorry, what was the first step again?&rdquo; and &ldquo;Yeah, but what if I don&rsquo;t know the router password?&rdquo;</p>
+<p>The pause sweep measured when the model started talking. A second experiment measured when it stopped. I asked for a long wifi troubleshooting walkthrough, then played one of seven user clips 2.5 seconds after the model became audible.</p>
 
-<p>The model stopped every time, 56 of 56, in under 0.2 s (median 0.12 s). The system sees the same event for a backchannel and &ldquo;wait, stop&rdquo;: speech started. Part of that is the client: it follows the recommended pattern and flushes playback on every speech event. The event itself carries no hint of what was said, so a client that wants to treat &ldquo;mm-hm&rdquo; differently has to wait for more evidence, such as how long the speech lasts or what the transcript says.</p>
+<p>Four clips were backchannels, brief signals that usually mean &ldquo;keep going&rdquo;: &ldquo;Mm-hmm,&rdquo; &ldquo;Yeah,&rdquo; &ldquo;Okay&rdquo; and &ldquo;Right, right.&rdquo; Three were interruptions that tried to take the floor: &ldquo;Wait, stop,&rdquo; &ldquo;Sorry, what was the first step again?&rdquo; and &ldquo;Yeah, but what if I don&rsquo;t know the router password?&rdquo;</p>
+
+<p>All 56 clips stopped the model in under 0.2 seconds, with a median of 0.12 seconds. Both a backchannel and &ldquo;wait, stop&rdquo; produced the same speech-started event. Following OpenAI&rsquo;s WebSocket guidance, the client stopped playback as soon as that event arrived.</p>
+
+<p>The event says that speech started, not what the user said. A client that wants to preserve playback through &ldquo;mm-hm&rdquo; needs more evidence, such as clip duration or a transcript, before it flushes audio.</p>
 
 <figure class="chart" id="fig-overlap">
-  <figcaption>Silence from the end of the user&rsquo;s clip until the model speaks again. Server VAD resumes in about 1.2&ndash;1.4 s regardless of what was said. Semantic VAD treats a lone &ldquo;yeah,&rdquo; &ldquo;okay&rdquo; or &ldquo;right, right&rdquo; as the start of an unfinished turn and waits out its ~4 s ceiling.</figcaption>
+  <figcaption>Time from the end of the user clip until the model spoke again. Server VAD usually resumed in about 1.2 to 1.4 seconds. With semantic VAD, brief acknowledgments sometimes entered the roughly 4-second timeout band.</figcaption>
 </figure>
 
 <figure class="chart trace" data-example="yeah-stops-it"></figure>
 
-<p>One behavior is right: after the pause, the model resumes where it was cut off. At the moment of interruption, the user had heard only the introduction, so &ldquo;First, &hellip;&rdquo; is the correct next line. I initially called this a restart. The playout timeline showed that I was wrong about how much audio the user had heard.</p>
+<p>After the interruption, the model continued from the point the listener had actually heard. In this example the user had heard only the introduction, so &ldquo;First, ...&rdquo; was the next line. I initially labeled that behavior a restart; reconstructing the playout timeline showed that the queued audio had never reached the listener.</p>
 </section>
 
 <section>
-<h2>What I got wrong along the way</h2>
+<h2>Three measurement mistakes changed the apparent result</h2>
 
-<p>I caught three mistakes in my measurement before they reached the charts. Each came from a shortcut that looked reasonable at the time.</p>
+<p>I caught three mistakes before producing the charts. Each came from a shortcut that looked reasonable at the time.</p>
 
-<p><strong>1. My repeats weren&rsquo;t independent.</strong> My first sweep ran four sentences three times each. The three repeats came back almost identical (9.1, 9.2, 9.1 s) because I sent byte-for-byte identical audio to a classifier that is close to deterministic. What I had called twelve &ldquo;trials&rdquo; per point were really four. The sweep here uses twelve sentences, two voices, and no repeats.</p>
+<p><strong>1. My repeats weren&rsquo;t independent.</strong> The first sweep ran four sentences three times each. The repeated results were almost identical because the audio bytes were identical and the classifier behaved close to deterministically. What I had called twelve trials per point were four distinct inputs. The final sweep uses twelve sentences, two voices and no repeats.</p>
 
-<p><strong>2. A harness bug made the model look silent.</strong> The harness decided that the model had finished by watching audio onsets, including onsets in audio still queued for playback. When an interruption flushed the queue, onsets from audio that never played remained on the list, and the trial ended early. Three trials appeared to stop without a reply. The model had replied; my harness had stopped waiting. A regression test now covers the bug, and I re-ran every affected trial.</p>
+<p><strong>2. A harness bug made the model look silent.</strong> I tracked audio onsets that were still queued for playback. After an interruption flushed that queue, those onsets remained, so the trial ended before the later reply arrived. Three trials appeared to stop without a reply. I added a regression test and reran every affected trial.</p>
 
-<p><strong>3. The synthetic voice paused in the wrong place.</strong> I made an unfinished first half by synthesizing the whole sentence with a pause marker, then cutting at the silence. For &ldquo;book a table for&hellip; four people,&rdquo; the voice inserted its pause after &ldquo;four people.&rdquo; That left only &ldquo;at seven tonight&rdquo; as the &ldquo;second half.&rdquo; I now transcribe every split and re-synthesize it until the cut lands on the intended word.</p>
+<p><strong>3. The synthetic voice paused in the wrong place.</strong> For &ldquo;book a table for... four people,&rdquo; the voice inserted its pause after &ldquo;four people.&rdquo; That left only &ldquo;at seven tonight&rdquo; as the second half. I now transcribe every split and resynthesize any clip whose cut misses the intended word.</p>
 </section>
 
 <div class="takeaways">
-  <h2>If you&rsquo;re building on this</h2>
+  <h2>What to do if you&rsquo;re building on this</h2>
   <ol>
-    <li><strong>Don&rsquo;t judge server VAD by what you hear.</strong> Log <code>input_audio_buffer.speech_stopped</code> and cancelled responses. Silent turn splits leave half-sentences in conversation history even when the audio sounds fine.</li>
-    <li><strong>Plan for semantic VAD&rsquo;s ceilings.</strong> On <code>low</code>, some users will wait ~8 s after finishing. If you use it, fill long silences deliberately rather than letting them happen.</li>
-    <li><strong>Expect mid-sentence pauses to be treated as fragments.</strong> Semantic VAD is slowest on dictation, forms, and anything a user reads out.</li>
-    <li><strong>Don&rsquo;t stop playback on every speech event.</strong> A short &ldquo;mm-hm&rdquo; shouldn&rsquo;t cost your user four seconds; gating on duration or transcript before flushing is worth trying.</li>
-    <li><strong>Measure at the ear.</strong> Server events and byte arrival times miss the timing a listener experiences.</li>
+    <li><strong>Log server VAD events as well as audible output.</strong> Record <code>input_audio_buffer.speech_stopped</code> and cancelled responses. A split half-sentence can enter the conversation history even when the listener hears nothing unusual.</li>
+    <li><strong>Plan for semantic VAD&rsquo;s long timeout band.</strong> On <code>low</code>, the 90th-percentile reply wait was 8.7 seconds. If you choose that setting, decide what the product should do during a long silence.</li>
+    <li><strong>Test the kinds of pauses your users make.</strong> Dictation and other read-out input can leave the detector with a short fragment after a pause.</li>
+    <li><strong>Be careful about stopping playback on speech onset.</strong> Brief backchannels stopped every response in this experiment. Waiting for duration or transcript evidence is worth testing.</li>
+    <li><strong>Measure at the listener&rsquo;s ear.</strong> Server events and byte arrival times omit queued playback time.</li>
   </ol>
-  <p>All numbers here come from one model (gpt-realtime-2.1), synthetic voices, and one client network, in September 2026. Hosted-model behavior can change without notice. These results are a dated measurement, not a spec.</p>
+  <p>These results cover one model, synthetic voices and one client network in September 2026. Hosted-model behavior can change. Treat this as a dated measurement rather than an API guarantee.</p>
 </div>
 
 <section>
-<h2>Next: a model with no turn detector</h2>
-<p>Three days before these runs, OpenAI released GPT-Live-1, a full-duplex model with no turn settings. It decides for itself when to listen and speak. On the same tests, it listens through &ldquo;mm-hm&rdquo; and replies faster than any setting here. It also takes over a second to stop after &ldquo;wait, stop.&rdquo; I&rsquo;ll make that comparison in the next post.</p>
+<h2>Next: a full-duplex model without a separate turn detector</h2>
+<p>Three days before these runs, OpenAI released GPT-Live-1 in the API. It's full duplex, so it can listen and speak at the same time, and it has no turn-detection settings at all. I ran the same tests for the next post; that comparison needs its own data and caveats.</p>
 </section>
 
 </article>
