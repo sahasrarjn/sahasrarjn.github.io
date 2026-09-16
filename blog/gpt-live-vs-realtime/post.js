@@ -211,74 +211,129 @@
     fig.appendChild(dataTable(["System", "Clip type", "Trials", "Stopped", "Kept talking", "Time to stop (ms)"], rows));
   })();
 
-  // ------------------------------------------------------------- audio traces
-  (function () {
-    var byName = {};
-    DATA.examples.forEach(function (e) { byName[e.name] = e; });
-    var colors = { m: "var(--model)", u: "var(--user)" };
-    Array.prototype.forEach.call(document.querySelectorAll("figure.trace"), function (fig) {
-      var e = byName[fig.getAttribute("data-example")];
-      if (!e) return;
-      var w0 = e.window[0], w1 = e.window[1];
-      var top = H("div", "tr-top");
-      top.appendChild(H("span", "tr-title", e.title));
-      top.appendChild(H("span", "tr-sub", e.sub));
-      fig.appendChild(top);
+  // ------------------------------------------------------------- recorded clips: pairs and gallery
+  // Each clip is one trial cut to its window; every time in DATA is relative to the window start, so the
+  // player clock, the waveform and the marks agree.
+  var CLIP_SYS = {
+    live: "GPT-Live-1", server: "gpt-realtime · server VAD", sem_high: "gpt-realtime · semantic high",
+    sem_auto: "gpt-realtime · semantic auto", sem_low: "gpt-realtime · semantic low"
+  };
+  var PAIR_TITLES = { yeah: "The caller says “yeah”", stop: "The caller says “wait, stop”", egg: "A 2.5 s pause mid-question" };
+  var playing = null;
+  function clock(sec) { var s = Math.max(0, Math.round(sec)); return Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2); }
 
-      var W = 960, L = 60, R = 10, Hh = 212, lanes = { u: [12, 68], m: [128, 184] };
-      function x(t) { return L + (t - w0) / (w1 - w0) * (W - L - R); }
-      var svg = S("svg", { viewBox: "0 0 " + W + " " + Hh, role: "img", "aria-label": "Recorded caller and model audio with numbered events", "class": "viz" });
-      T("text", { x: 0, y: 44, "class": "lane" }, "CALLER", svg);
-      T("text", { x: 0, y: 160, "class": "lane" }, "MODEL", svg);
-      function env(arr, lane, cls) {
-        var mid = (lane[0] + lane[1]) / 2, half = (lane[1] - lane[0]) / 2, step = 20;
-        var i0 = Math.max(0, Math.floor(w0 / step)), i1 = Math.min(arr.length - 1, Math.ceil(w1 / step));
-        var topPath = "", bot = [];
-        for (var i = i0; i <= i1; i++) {
-          var px = x(i * step).toFixed(1), a = Math.max(0.015, arr[i]) * half;
-          topPath += (i === i0 ? "M" : "L") + px + "," + (mid - a).toFixed(1);
-          bot.push(px + "," + (mid + a).toFixed(1));
-        }
-        S("path", { d: topPath + "L" + bot.reverse().join("L") + "Z", "class": cls }, svg);
+  function clipRow(c, span, compact) {
+    var len = c.window[1] - c.window[0];
+    var row = H("div", "clip" + (compact ? " compact" : "") + (c.system === "live" ? " is-live" : " is-rt"));
+    var head = H("div", "clip-head");
+    var btn = H("button", "play"); btn.type = "button";
+    btn.setAttribute("aria-label", "Play " + CLIP_SYS[c.system] + ": " + c.result);
+    head.appendChild(btn);
+    var who = H("div", "clip-who");
+    who.appendChild(H("span", "sys", CLIP_SYS[c.system]));
+    who.appendChild(H("span", "res", c.result));
+    head.appendChild(who);
+    var tm = H("span", "clock", "0:00 / " + clock(len / 1000));
+    head.appendChild(tm);
+    row.appendChild(head);
+
+    var W = compact ? 620 : 960, L = 58, R = 8, top = 30, laneH = compact ? 22 : 34, gap = 6;
+    var lu = [top, top + laneH], lm = [top + laneH + gap, top + 2 * laneH + gap], axisY = lm[1] + 8, Hh = axisY + 16;
+    function x(t) { return L + t / span * (W - L - R); }
+    var svg = S("svg", { viewBox: "0 0 " + W + " " + Hh, "class": "viz clip-svg", role: "img",
+      "aria-label": "Waveforms of the caller and " + CLIP_SYS[c.system] + " with marked events" });
+    T("text", { x: 0, y: (lu[0] + lu[1]) / 2 + 4, "class": "lane" }, "CALLER", svg);
+    T("text", { x: 0, y: (lm[0] + lm[1]) / 2 + 4, "class": "lane" }, "MODEL", svg);
+    function env(arr, lane, cls) {
+      var mid = (lane[0] + lane[1]) / 2, half = (lane[1] - lane[0]) / 2, topP = "", bot = [];
+      for (var i = 0; i < arr.length; i++) {
+        var px = x(i * 20).toFixed(1), a = Math.max(0.02, arr[i]) * half;
+        topP += (i ? "L" : "M") + px + "," + (mid - a).toFixed(1);
+        bot.push(px + "," + (mid + a).toFixed(1));
       }
-      env(e.user, lanes.u, "env-u");
-      env(e.model, lanes.m, "env-m");
-      S("line", { x1: L, x2: W - R, y1: 194, y2: 194, "class": "ax" }, svg);
-      for (var t = w0; t <= w1; t += 1000) T("text", { x: x(t), y: 208, "text-anchor": "middle", "class": "tx" }, ((t - w0) / 1000) + " s", svg);
-      var prev = -Infinity;
-      e.items.forEach(function (it, i) {
-        var tx = x(it[0]), dx = Math.max(tx, prev + 21);
-        prev = dx;
-        S("line", { x1: tx, x2: tx, y1: lanes.u[0], y2: lanes.m[1], "class": "mark" }, svg);
-        if (dx !== tx) S("line", { x1: tx, x2: dx, y1: 98, y2: 98, "class": "mark" }, svg);
-        S("circle", { cx: dx, cy: 98, r: 9, fill: colors[it[1]], stroke: "var(--paper-2)", "stroke-width": 2 }, svg);
-        T("text", { x: dx, y: 101.5, "class": "evn", fill: it[1] === "m" ? "#1A201E" : "#fff" }, String(i + 1), svg);
-      });
-      var head = S("line", { x1: x(w0), x2: x(w0), y1: 6, y2: 194, "class": "head", visibility: "hidden" }, svg);
-      fig.appendChild(svg);
+      S("path", { d: topP + "L" + bot.reverse().join("L") + "Z", "class": cls }, svg);
+    }
+    env(c.user, lu, "env-u");
+    env(c.model, lm, "env-m");
+    S("line", { x1: L, x2: W - R, y1: axisY, y2: axisY, "class": "ax" }, svg);
+    for (var t = 0; t <= span; t += 1000) {
+      S("line", { x1: x(t), x2: x(t), y1: axisY, y2: axisY + 3, "class": "ax" }, svg);
+      if (t % 2000 === 0) T("text", { x: x(t), y: axisY + 14, "text-anchor": "middle", "class": "tx" }, t / 1000 + " s", svg);
+    }
+    var ends = [-1e9, -1e9];
+    c.marks.forEach(function (mk) {
+      var mx = x(mk[0]), w = mk[2].length * (compact ? 6.9 : 6.3) + 8, rowI = mx > ends[0] ? 0 : (mx > ends[1] ? 1 : 0);
+      var anchorEnd = mx + w > W;
+      ends[rowI] = anchorEnd ? mx + 4 : mx + w;
+      var ly = rowI === 0 ? 11 : 24;
+      S("line", { x1: mx, x2: mx, y1: ly + 3, y2: lm[1], "class": "mark mark-" + mk[1] }, svg);
+      T("text", { x: anchorEnd ? mx - 4 : mx + 4, y: ly, "text-anchor": anchorEnd ? "end" : "start", "class": "mk mk-" + mk[1] }, mk[2], svg);
+    });
+    var head2 = S("line", { x1: L, x2: L, y1: top - 2, y2: lm[1] + 2, "class": "head", visibility: "hidden" }, svg);
+    var hit = S("rect", { x: L, y: top, width: x(len) - L, height: lm[1] - top, "class": "hit" }, svg);
+    row.appendChild(svg);
 
-      var body = H("div", "tr-body"), left = H("div"), right = H("div");
-      var audio = H("audio"); audio.controls = true; audio.preload = "none"; audio.src = "audio/" + e.name + ".mp3";
-      audio.addEventListener("timeupdate", function () {
-        var ms = w0 + audio.currentTime * 1000;
-        if (ms >= w0 && ms <= w1) { head.setAttribute("x1", x(ms)); head.setAttribute("x2", x(ms)); head.setAttribute("visibility", "visible"); }
-        else head.setAttribute("visibility", "hidden");
+    var bodyEl = row;
+    if (compact) { bodyEl = H("div", "clip-body"); row.appendChild(bodyEl); bodyEl.appendChild(svg); }
+    if (c.lines && c.lines.length) {
+      var lines = H("div", "clip-lines");
+      c.lines.forEach(function (ln) {
+        var p = H("p", "ln ln-" + ln[0]);
+        p.appendChild(H("span", "ln-who", ln[0] === "caller" ? "Caller" : (c.system === "live" ? "GPT-Live" : "gpt-realtime")));
+        p.appendChild(H("span", "ln-text", ln[1]));
+        lines.appendChild(p);
       });
-      left.appendChild(audio);
-      var ol = H("ol", "ev");
-      e.items.forEach(function (it, i) {
-        var li = H("li"), n = H("span", "n", String(i + 1));
-        n.style.background = colors[it[1]]; if (it[1] === "m") n.style.color = "#1A201E";
-        li.appendChild(n); li.appendChild(H("span", "t", secs(it[0] - w0))); li.appendChild(H("span", null, it[2]));
-        ol.appendChild(li);
+      bodyEl.appendChild(lines);
+    }
+
+    var audio = null, raf = 0;
+    function draw() {
+      if (!audio) return;
+      var ms = audio.currentTime * 1000;
+      head2.setAttribute("x1", x(ms)); head2.setAttribute("x2", x(ms));
+      head2.setAttribute("visibility", ms > 0 ? "visible" : "hidden");
+      tm.textContent = clock(audio.currentTime) + " / " + clock(len / 1000);
+      if (!audio.paused) raf = requestAnimationFrame(draw);
+    }
+    function ensure() {
+      if (audio) return audio;
+      audio = new Audio("audio/" + c.name + ".mp3");
+      audio.preload = "auto";
+      audio.addEventListener("play", function () { row.classList.add("on"); if (playing && playing !== audio) playing.pause(); playing = audio; draw(); });
+      audio.addEventListener("pause", function () { row.classList.remove("on"); cancelAnimationFrame(raf); draw(); });
+      audio.addEventListener("ended", function () { row.classList.remove("on"); audio.currentTime = 0; draw(); });
+      return audio;
+    }
+    btn.addEventListener("click", function () { var a = ensure(); if (a.paused) a.play(); else a.pause(); });
+    hit.addEventListener("click", function (evt) {
+      var box = svg.getBoundingClientRect(), vx = (evt.clientX - box.left) / box.width * W;
+      var a = ensure(); a.currentTime = Math.max(0, Math.min(len, (vx - L) / (W - L - R) * span)) / 1000;
+      if (a.paused) a.play(); else draw();
+    });
+    return row;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("figure.pair"), function (fig) {
+    var key = fig.getAttribute("data-pair"), pair = DATA.pairs && DATA.pairs[key];
+    if (!pair) return;
+    var span = Math.max.apply(null, pair.map(function (c) { return c.window[1] - c.window[0]; }));
+    var nodes = [H("div", "pair-title", PAIR_TITLES[key] || "")];
+    pair.forEach(function (c) { nodes.push(clipRow(c, span, false)); });
+    mount(fig, nodes);
+  });
+
+  (function () {
+    var host = document.getElementById("gallery");
+    if (!host || !DATA.gallery) return;
+    var groups = [["Pausing mid-sentence", function (c) { return !/stop|okay|mmhm|password/.test(c.name); }],
+                  ["Talking over the walkthrough", function (c) { return /stop|okay|mmhm|password/.test(c.name); }]];
+    groups.forEach(function (g) {
+      host.appendChild(H("h3", "gal-h", g[0]));
+      var list = H("div", "gal");
+      DATA.gallery.filter(g[1]).forEach(function (c) {
+        list.appendChild(clipRow(c, c.window[1] - c.window[0], true));
       });
-      left.appendChild(ol);
-      var said = H("div", "said");
-      e.said.forEach(function (s) { said.appendChild(H("div", "who", s[0])); said.appendChild(H("p", null, s[1])); });
-      right.appendChild(said);
-      right.appendChild(H("div", "take", e.take));
-      body.appendChild(left); body.appendChild(right);
-      fig.appendChild(body);
+      host.appendChild(list);
     });
   })();
 })();

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Comparing turn-taking in GPT-Live-1 and gpt-realtime-2.1 &middot; Sahasra Ranjan</title>
-<meta name="description" content="I ran OpenAI's full-duplex GPT-Live-1 through the same turn-taking tests as gpt-realtime-2.1: mid-sentence pauses, reply waits, backchannels and interruptions, measured at the listener's end.">
+<meta name="description" content="I ran OpenAI's full-duplex GPT-Live-1 through the same turn-taking tests as gpt-realtime-2.1 and recorded both. Listen to them side by side: backchannels, interruptions and mid-sentence pauses.">
 <meta name="keywords" content="voice AI, GPT-Live, realtime API, full duplex, turn-taking, backchannel, OpenAI, gpt-realtime, latency">
 <meta name="author" content="Sahasra Ranjan">
 <link rel="icon" href="/favicon.ico">
@@ -12,7 +12,7 @@
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Comparing turn-taking in GPT-Live-1 and gpt-realtime-2.1">
-<meta property="og:description" content="Same tests, two OpenAI voice models: GPT-Live-1 kept talking through 19 of 20 backchannels, spoke during 54 of 117 paused sentences and took about 1.4 s to stop when interrupted.">
+<meta property="og:description" content="Same tests, two OpenAI voice models, recorded side by side: GPT-Live-1 kept talking through 19 of 20 backchannels, spoke during 54 of 117 paused sentences and took about 1.4 s to stop when interrupted.">
 <meta property="og:image" content="https://www.sahasrarjn.com/blog/gpt-live-vs-realtime/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -43,144 +43,114 @@
   <header>
     <div class="kicker">Voice AI &middot; Measurement</div>
     <h1>Comparing turn-taking in GPT-Live-1 and gpt-realtime-2.1</h1>
-    <p class="standfirst">I ran OpenAI&rsquo;s full-duplex GPT-Live-1 through the same turn-taking tests I used on gpt-realtime-2.1. It kept talking through 19 of 20 backchannels and spoke during 54 of 117 mid-sentence pauses. When the caller tried to interrupt, GPT-Live stopped in 14 of 15 trials, with a median stop time of about 1.4 seconds.</p>
+    <p class="standfirst">I ran OpenAI&rsquo;s full-duplex GPT-Live-1 through the same turn-taking tests as gpt-realtime-2.1 and recorded both. GPT-Live talked through &ldquo;yeah&rdquo; and &ldquo;mm-hmm&rdquo;, took about 1.4 s to stop when interrupted, and often answered before the caller finished the sentence.</p>
     <div class="byline"><span>Sahasra Ranjan</span>
-    <span>~10 min read</span>
-    <span>gpt-live-1 vs gpt-realtime-2.1 &middot; audio included</span></div>
+    <span>~5 min read</span>
+    <span>16 recorded clips</span></div>
   </header>
 
   <details id="toc">
     <summary>Contents</summary>
   </details>
 
-<figure class="chart trace" data-example="live-yeah" style="margin-top:2rem"></figure>
+<figure class="pair" data-pair="yeah" style="margin-top:2rem">
+  <figcaption>Same question, same caller voice. Both models are mid-walkthrough when the caller says &ldquo;yeah&rdquo;. Play each one.</figcaption>
+</figure>
 
 <section>
-<p class="lede">In my <a href="../realtime-turn-detection/">last post</a>, I measured how gpt-realtime-2.1 decides that you&rsquo;ve finished talking. A turn is one stretch of speech before the other side responds. The API uses VAD, or voice activity detection, to decide when that stretch ends.</p>
+<p class="lede">In my <a href="../realtime-turn-detection/">last post</a> I measured how gpt-realtime-2.1 decides you&rsquo;ve finished talking. Its turn detection is a separate step (VAD, voice activity detection) that you configure, and every setting had a tradeoff: cut the caller off, or make them wait.</p>
 
-<p>With the default VAD setting, short pauses often ended the caller&rsquo;s turn. Semantic VAD cut in less often, but its slowest setting had a 90th-percentile reply wait of 8.7 seconds. A listener&rsquo;s &ldquo;yeah&rdquo; also stopped playback every time in that test.</p>
-
-<p>GPT-Live-1 came out three days before those runs. It&rsquo;s full duplex, meaning it can listen while it speaks, and its API doesn&rsquo;t expose the same turn-detection settings. I ran the same 12 sentences, 2 synthetic voices, pause lengths and caller clips against it.</p>
+<p>GPT-Live-1 works differently. It&rsquo;s full duplex, so it listens while it talks, and there&rsquo;s no turn-detection setting to pick. I ran it on the same 12 sentences, 2 synthetic voices and 7 caller clips, for about $2.40.</p>
 
 <ol>
-  <li>GPT-Live kept talking through 19 of 20 backchannels, the brief &ldquo;mm-hm&rdquo; and &ldquo;yeah&rdquo; signals that tell a speaker to continue. The gpt-realtime client stopped playback on all 32 backchannel trials.</li>
-  <li>GPT-Live stopped in 14 of 15 interruption trials. Its median stop time was 1.41 s, compared with about 0.13 s for the gpt-realtime client.</li>
-  <li>GPT-Live spoke before the caller finished in 54 of 117 pause trials, more than any gpt-realtime setting. In 12 of those, it only acknowledged the caller with words such as &ldquo;Got it&rdquo; or &ldquo;Mm-hmm.&rdquo;</li>
-  <li>Among replies with a measured gap, GPT-Live&rsquo;s median wait was 1.30 s and its slowest was 3.5 s. It gave no reply in 2 of the 117 pause trials.</li>
+  <li>It kept talking through 19 of 20 backchannels (&ldquo;yeah&rdquo;, &ldquo;mm-hmm&rdquo;, &ldquo;okay&rdquo;, &ldquo;right, right&rdquo;). gpt-realtime, with my client cutting playback on caller speech, stopped on all 32.</li>
+  <li>When the caller actually interrupted, it stopped in 14 of 15 trials, but took a median 1.41 s to do it.</li>
+  <li>It spoke during 54 of 117 mid-sentence pauses. Sometimes that was just &ldquo;Mm-hmm&rdquo;; often it was a guess at the answer.</li>
+  <li>Its replies were quick: median 1.30 s after the caller finished, 3.5 s at worst.</li>
 </ol>
 </section>
 
 <section>
-<h2>The two stop times measure different things</h2>
+<h2>&ldquo;Wait, stop&rdquo; takes about 1.4 seconds</h2>
 
-<p>Each trial opened a fresh session. The harness sent the caller&rsquo;s audio in real time in 20 ms frames, then reconstructed playout, the time each returned audio chunk would reach the listener after waiting in the playback queue.</p>
+<p>Backchannels are the good news. A caller saying &ldquo;yeah&rdquo; halfway through instructions wants you to keep going, and GPT-Live did in 19 of 20 trials. The one exception was an &ldquo;okay&rdquo;, which is in the clips at the bottom.</p>
 
-<p>For gpt-realtime, I logged events for the start and end of caller speech and for the response lifecycle. When the server reported that caller speech had started, my client flushed the queued model audio. Its stop time therefore includes server speech detection, network delay and the client flush.</p>
+<p>The cost shows up when the caller really wants the floor. It stopped for 14 of 15 interruptions, with a median of 1.41 s and a range of 0.66 to 2.12 s. That&rsquo;s a long time to keep talking after someone says &ldquo;stop&rdquo;.</p>
 
-<p>GPT-Live doesn&rsquo;t emit the same speech-start event or complete-turn markers. I measured its timing from the recorded audio. A GPT-Live stop means that its audio went quiet; the data doesn&rsquo;t show the model&rsquo;s internal decision point.</p>
-
-<p>I used the GPT-Live transcript to separate acknowledgments from replies. If everything it said before the caller finished was an acknowledgment such as &ldquo;okay,&rdquo; &ldquo;got it,&rdquo; &ldquo;mm-hmm,&rdquo; &ldquo;go on&rdquo; or &ldquo;sure,&rdquo; I counted it as an acknowledgment. Anything else counted as a reply.</p>
-
-<p>This is a blunt classification rule. The data table under each chart shows the counts so the split is inspectable.</p>
-</section>
-
-<section>
-<h2>GPT-Live spoke during 54 of 117 paused sentences</h2>
-
-<p>For the pause sweep, the caller said the first half of a sentence, paused for 0.3 to 2.5 seconds, then continued. The chart shows how often audio from each model reached the listener before the caller finished.</p>
-
-<figure class="chart" id="fig-early">
-  <figcaption>Share of trials with model audio before the caller finished the sentence. Each system had 56 to 59 unfinished-clause trials, 27 to 30 dictation trials and 29 to 30 complete-sounding trials. Hover a bar for exact counts.</figcaption>
+<figure class="pair" data-pair="stop">
+  <figcaption>The caller says &ldquo;Wait, stop.&rdquo; 2.6 s into each clip.</figcaption>
 </figure>
 
-<p>During dictation, GPT-Live spoke early in 18 of 29 trials. Eight were acknowledgments. The other 10 were replies, most of which read back part of the number, as in &ldquo;Got it, 4771.&rdquo;</p>
-
-<figure class="chart trace" data-example="live-phone"></figure>
-
-<p>GPT-Live also spoke after a first half that already sounded complete, such as &ldquo;My order hasn&rsquo;t arrived yet.&rdquo; It acknowledged the caller in 3 of 30 trials and started a reply in 20. The semantic VAD settings started replies in 8 or 9 of about 30 comparable trials.</p>
-
-<p>On unfinished clauses, GPT-Live spoke early in 13 of 58 trials. Server VAD did so in 17 of 56, while each semantic VAD setting did so in only 1 or 2 trials. One GPT-Live case was an acknowledgment; the other 12 were replies.</p>
-
-<figure class="chart trace" data-example="live-egg"></figure>
-
-<p>I didn&rsquo;t expect the replies to unfinished clauses. After &ldquo;How long should I boil an egg if I want the yolk,&rdquo; GPT-Live answered &ldquo;For a runny yolk, about six minutes&rdquo; before the caller said &ldquo;still a little runny?&rdquo; In another trial, it agreed to set a reminder before the caller had said when.</p>
-
-<p>Those guesses can be right. When they aren&rsquo;t, the caller has to talk over an answer to a question they haven&rsquo;t finished asking.</p>
-
-<p>Longer pauses made this more likely. GPT-Live spoke early in 1 of 22 trials at 0.3 s, 8 of 23 at 0.6 s (6 of those were just acknowledgments), 12 of 24 at 0.9 s, 17 of 24 at 1.5 s and 16 of 24 at 2.5 s.</p>
-</section>
-
-<section>
-<h2>GPT-Live&rsquo;s measured reply gaps topped out at 3.5 seconds</h2>
-
-<p>The pause test also measured the silence between the caller&rsquo;s final word and the first audible reply. This is a different measurement from speaking during the pause.</p>
-
-<figure class="chart" id="fig-waits">
-  <figcaption>Silence from the caller&rsquo;s final word to the first audible reply, one dot per measured gap. The tick is the median; the open marker is the 90th percentile.</figcaption>
-</figure>
-
-<p>The chart contains 114 measured GPT-Live gaps. Their median was 1.30 s and their 90th percentile was 1.83 s. Server VAD measured 1.38 s and 1.82 s.</p>
-
-<p>GPT-Live&rsquo;s slowest measured reply took 3.5 s, while 2 of its 117 pause trials produced no reply. In one more trial it answered during the pause and said nothing after the caller finished, so there was no gap to measure.</p>
-
-<p>Semantic VAD on low had a 90th percentile of 8.7 s. In the previous test, the intact capital-of-Australia question got a reply in about 1.5 s. A pause before &ldquo;Australia is?&rdquo; pushed the wait to about 9 s, close to the result for sending that fragment alone.</p>
-
-<div class="tscroll" id="fig-fragments"></div>
-<p class="note">Time from the caller&rsquo;s last word to the first audible reply, one trial per cell. Rows for GPT-Live are highlighted.</p>
-
-<p>For the capital question, GPT-Live answered the intact, split and fragment-only versions in 1.1 to 1.7 s across both voices. I didn&rsquo;t see the long fragment-related delay from semantic VAD in these trials. That&rsquo;s an observation about the outputs, not evidence of how GPT-Live decides to respond.</p>
-</section>
-
-<section>
-<h2>GPT-Live ignored 19 of 20 backchannels and took 1.41 seconds to stop</h2>
-
-<p>I asked each model for a long wifi troubleshooting walkthrough. Then, 2.5 s after its audio became audible, the caller played one of seven clips. Four were backchannels that meant &ldquo;keep going&rdquo;; three were attempts to take the floor.</p>
+<p>This isn&rsquo;t quite a fair fight. gpt-realtime&rsquo;s 0.1 s comes from my client: it cuts playback as soon as the server reports caller speech, which is also why it stops for every &ldquo;yeah&rdquo;. GPT-Live sends no such event, so there&rsquo;s nothing on the client side to tune.</p>
 
 <figure class="chart" id="fig-stop">
-  <figcaption>Each dot is a trial in which the model stopped, placed by the time from caller speech onset to silence. The gpt-realtime settings each had 16 backchannel and 12 interruption trials across two voices; GPT-Live had 20 and 15. The label at right counts trials in which it kept talking.</figcaption>
+  <figcaption>Time from the caller starting to speak until the model went quiet, one dot per trial that stopped. The gpt-realtime settings had 16 backchannel and 12 interruption trials each; GPT-Live had 20 and 15. The label at right counts trials where it kept talking.</figcaption>
 </figure>
-
-<p>For stopping, the gpt-realtime client treated every clip the same way. It flushed playback after the server reported speech, and the audio stopped in 85 to 189 ms whether the caller said &ldquo;mm-hm&rdquo; or &ldquo;wait, stop.&rdquo;</p>
-
-<p>GPT-Live kept talking through 19 of 20 backchannels. It stopped once, after an &ldquo;okay,&rdquo; with 0.96 s of overlap. For interruptions, it stopped in 14 of 15 trials, with a median of 1.41 s and a range of 0.66 to 2.12 s.</p>
-
-<p>In the remaining interruption trial, it kept talking through &ldquo;Wait, stop.&rdquo; The recorded example below shows another &ldquo;Wait, stop&rdquo; trial in which it finished the current phrase and went quiet after 1.5 s.</p>
-
-<figure class="chart trace" data-example="live-stop"></figure>
-
-<p>So this isn&rsquo;t a like-for-like comparison. gpt-realtime&rsquo;s fast result came from my client flushing playback on a speech-start event. A client could wait for more evidence before flushing, which may help with backchannels but would also delay some interruptions.</p>
-
-<p>GPT-Live has no setting for this, so there&rsquo;s nothing on the client side to tune. Once it stopped, it replied to the interruption in all 14 stopping trials.</p>
-
-<p>In one trial, the caller asked &ldquo;what if I don&rsquo;t know the router password?&rdquo; GPT-Live answered, &ldquo;No problem, you don&rsquo;t need it for these steps,&rdquo; and continued.</p>
 </section>
 
 <section>
-<h2>Measurement notes</h2>
+<h2>It talks during pauses, and sometimes answers early</h2>
 
-<h3>The network outage changed the run, not the final sample</h3>
-<p>My connection dropped during the GPT-Live pause sweep, and 61 trials failed to connect. I reran all of them. One trial was still in flight when I stopped the run, and I excluded 2 in which the harness fell behind real time, leaving 117 of the planned 120.</p>
+<p>In this test the caller says half a sentence, pauses for 0.3 to 2.5 s, then finishes. GPT-Live spoke before the caller finished in 54 of 117 trials. In 12 of those it only said something like &ldquo;Mm-hmm&rdquo; or &ldquo;Got it&rdquo;. The rest were real replies.</p>
 
-<h3>I had to fix the stop detector</h3>
-<p>My first detector expected model audio to end cleanly. GPT-Live often produced a short trailing fragment before going quiet, so the detector missed some stops and labeled them &ldquo;kept talking.&rdquo;</p>
+<figure class="pair" data-pair="egg">
+  <figcaption>&ldquo;How long should I boil an egg if I want the yolk&hellip; still a little runny?&rdquo; with a 2.5 s pause. gpt-realtime is on semantic VAD, low eagerness.</figcaption>
+</figure>
 
-<p>I changed the detector to accept that trailing fragment and rescored every saved trial for both systems. None of the gpt-realtime results changed.</p>
+<p>I didn&rsquo;t expect it to answer unfinished questions. It replied early in 12 of 58 unfinished-clause trials, not far from server VAD (17 of 56), while semantic VAD almost never did (1 or 2). Dictation was the worst case: it spoke in 18 of 29 trials, often reading back half a phone number or gate code.</p>
 
-<h3>I aligned transcript words to the audio</h3>
-<p>GPT-Live&rsquo;s transcript timestamps ran about 0.9 s ahead of its audio (median across 115 trials). To classify what it said before the caller finished, I shifted each trial&rsquo;s transcript so its first word matched the first model audio.</p>
+<figure class="chart" id="fig-early">
+  <figcaption>Share of trials with model audio before the caller finished, split into acknowledgments and replies. Each system had 56 to 59 unfinished-clause, 27 to 30 dictation and 29 to 30 complete-sounding trials. Hover a bar for counts.</figcaption>
+</figure>
+
+<p>Longer pauses made it more likely: 1 of 22 trials at 0.3 s, 8 of 23 at 0.6 s, and 17 and 16 of 24 at 1.5 s and 2.5 s.</p>
+</section>
+
+<section>
+<h2>Its replies never took long</h2>
+
+<p>The upside of being eager is that nobody waits. GPT-Live&rsquo;s median reply gap was 1.30 s, its 90th percentile 1.83 s, and its slowest 3.5 s, about the same as server VAD. Semantic VAD on low had a 90th percentile of 8.7 s. In 2 of 117 trials GPT-Live didn&rsquo;t reply at all.</p>
+
+<figure class="chart" id="fig-waits">
+  <figcaption>Silence from the caller&rsquo;s last word to the first audible reply, one dot per trial. The tick is the median, the open marker the 90th percentile.</figcaption>
+</figure>
+
+<p>It also didn&rsquo;t get stuck on fragments. When the caller split &ldquo;what the capital of&hellip; Australia is?&rdquo;, semantic VAD on low waited about 9 s. GPT-Live answered every version of that question in 1.1 to 1.7 s.</p>
+
+<details class="more">
+  <summary>Fragment test, every cell</summary>
+  <div class="tscroll" id="fig-fragments"></div>
+  <p class="note">Time from the caller&rsquo;s last word to the first audible reply, one trial per cell. GPT-Live rows are highlighted.</p>
+</details>
+</section>
+
+<section>
+<h2>More clips</h2>
+
+<p>More recordings from the same runs. Most are GPT-Live; where gpt-realtime did something worth hearing on the same sentence, it&rsquo;s right below.</p>
+
+<div id="gallery"></div>
 </section>
 
 <div class="takeaways">
-  <h2>What these measurements mean for a voice app</h2>
+  <h2>What I&rsquo;d take from this</h2>
   <ul>
-    <li>For instructions and walkthroughs, GPT-Live kept speaking through 19 of 20 backchannels. The tested gpt-realtime client stopped on every one.</li>
-    <li>For callers who need to cut in quickly, GPT-Live&rsquo;s median stop time was 1.41 s. Test whether that amount of overlap works for your users.</li>
-    <li>For dictation and forms, GPT-Live spoke during 18 of 29 pauses. Eight were acknowledgments and 10 were replies.</li>
-    <li>GPT-Live&rsquo;s slowest measured reply gap was 3.5 s, though 2 of 117 pause trials got no reply. Semantic VAD stayed quieter during unfinished clauses but had longer waits.</li>
-    <li>gpt-realtime exposes turn and response events. GPT-Live doesn&rsquo;t expose the same turn markers, so I had to debug these trials from audio and transcript.</li>
+    <li>If your app gives long instructions, GPT-Live&rsquo;s handling of &ldquo;yeah&rdquo; and &ldquo;mm-hmm&rdquo; is a clear improvement over stopping on any sound.</li>
+    <li>If callers need to cut in, listen to the &ldquo;wait, stop&rdquo; clips. Decide whether about 1.4 s of overlap is acceptable for your users.</li>
+    <li>For dictation (phone numbers, codes, addresses), expect it to talk during pauses.</li>
+    <li>With gpt-realtime the tradeoff is yours to set. With GPT-Live it&rsquo;s fixed, and you debug from audio and transcripts because there are no turn events.</li>
   </ul>
-  <p class="note">One model version each, synthetic caller voices, one client network, September 2026. About $2.40 of GPT-Live sessions for this post. Hosted models change; treat this as a dated measurement.</p>
+  <p class="note">One model version each, synthetic caller voices, one client network, September 2026. Hosted models change; treat this as a dated measurement.</p>
 </div>
+
+<details class="more method">
+  <summary>How I measured this</summary>
+  <p>Every trial opened a fresh session. The harness streamed the caller&rsquo;s audio in real time as 20 ms frames and rebuilt the playback timeline, so all times are when a listener would hear the audio, not when bytes arrived.</p>
+  <p>The two stop times aren&rsquo;t measured the same way. For gpt-realtime, my client flushed queued audio when the server reported caller speech, so its stop time includes server detection, network and the flush. GPT-Live has no such event; its stop time is when its recorded audio went quiet.</p>
+  <p>To separate acknowledgments from replies I used the transcript. If everything GPT-Live said before the caller finished was words like &ldquo;okay&rdquo;, &ldquo;got it&rdquo;, &ldquo;mm-hmm&rdquo;, &ldquo;go on&rdquo; or &ldquo;sure&rdquo;, it counted as an acknowledgment. It&rsquo;s a blunt rule; the tables under the charts show the counts.</p>
+  <p>GPT-Live&rsquo;s transcript timestamps ran about 0.9 s ahead of its audio (median across 115 trials), so I shifted each transcript to line up with the first model audio. gpt-realtime transcripts have no word timings, so the quotes in its clips spread each message&rsquo;s words evenly over its audio and drop what playback cut off.</p>
+  <p>Two things went wrong. My network dropped during the GPT-Live pause sweep and 61 trials failed to connect; I reran all of them. One more was cut off when I stopped the run and 2 were dropped because the harness fell behind real time, leaving 117 of 120. And my first stop detector missed GPT-Live&rsquo;s habit of trailing off with a short fragment, which labeled some stops as &ldquo;kept talking&rdquo;. I fixed it and rescored every trial for both models; no gpt-realtime result changed.</p>
+</details>
 
 </article>
 </main>
