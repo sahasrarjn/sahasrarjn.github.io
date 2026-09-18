@@ -16,9 +16,9 @@
 <meta property="og:image" content="https://www.sahasrarjn.com/blog/realtime-turn-detection/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="../../assets/vendor/pico/pico.min.css">
-<link rel="stylesheet" href="../assets/blog.css">
-<link rel="stylesheet" href="post.css">
+<link rel="stylesheet" href="/assets/vendor/pico/pico.min.css">
+<link rel="stylesheet" href="/blog/assets/blog.css">
+<link rel="stylesheet" href="/blog/realtime-turn-detection/post.css">
 <script>
   // light by default; dark only if the reader chose it (applied before first paint, so no flash)
   (function(){try{if(localStorage.getItem('blog-theme')==='dark')
@@ -30,7 +30,7 @@
 <div id="progress"></div>
 
 <header class="container topbar">
-  <a href="../index.html">&larr; Writing</a>
+  <a href="/blog/">&larr; Writing</a>
   <span class="right">
     <span>14 September 2026</span>
     <button id="theme-toggle" type="button">Light</button>
@@ -235,20 +235,20 @@
 
 <section>
 <h2>Next: a full-duplex model without a separate turn detector</h2>
-<p>Three days before these runs, OpenAI released GPT-Live-1 in the API. It's full duplex, so it can listen and speak at the same time, and it has no turn-detection settings at all. I ran the same tests on it in <a href="../gpt-live-vs-realtime/">the next post</a>.</p>
+<p>Three days before these runs, OpenAI released GPT-Live-1 in the API. It's full duplex, so it can listen and speak at the same time, and it has no turn-detection settings at all. I ran the same tests on it in <a href="/blog/gpt-live-vs-realtime/">the next post</a>.</p>
 </section>
 
 </article>
 </main>
 
 <footer class="container site">
-  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="../../index.html">sahasrarjn.com</a></span>
+  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="/index.html">sahasrarjn.com</a></span>
   <span>Code and per-trial data: <a href="https://github.com/sahasrarjn/turnprobe">github.com/sahasrarjn/turnprobe</a> &middot; recordings of every trial: <a href="https://github.com/sahasrarjn/turnprobe/releases/tag/data-2026-09-13">data release</a>.</span>
 </footer>
 
 <div id="tip" hidden></div>
-<script src="data.js"></script>
-<script src="post.js"></script>
-<script src="../assets/blog.js"></script>
+<script src="/blog/realtime-turn-detection/data.js"></script>
+<script src="/blog/realtime-turn-detection/post.js"></script>
+<script src="/blog/assets/blog.js"></script>
 </body>
 </html>

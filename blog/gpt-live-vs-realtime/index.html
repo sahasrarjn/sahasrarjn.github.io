@@ -16,9 +16,9 @@
 <meta property="og:image" content="https://www.sahasrarjn.com/blog/gpt-live-vs-realtime/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="../../assets/vendor/pico/pico.min.css">
-<link rel="stylesheet" href="../assets/blog.css">
-<link rel="stylesheet" href="post.css">
+<link rel="stylesheet" href="/assets/vendor/pico/pico.min.css">
+<link rel="stylesheet" href="/blog/assets/blog.css">
+<link rel="stylesheet" href="/blog/gpt-live-vs-realtime/post.css">
 <script>
   // light by default; dark only if the reader chose it (applied before first paint, so no flash)
   (function(){try{if(localStorage.getItem('blog-theme')==='dark')
@@ -30,7 +30,7 @@
 <div id="progress"></div>
 
 <header class="container topbar">
-  <a href="../index.html">&larr; Writing</a>
+  <a href="/blog/">&larr; Writing</a>
   <span class="right">
     <span>16 September 2026</span>
     <button id="theme-toggle" type="button">Light</button>
@@ -58,7 +58,7 @@
 </figure>
 
 <section>
-<p class="lede">In my <a href="../realtime-turn-detection/">last post</a> I measured how gpt-realtime-2.1 decides you&rsquo;ve finished talking. Its turn detection is a separate step (VAD, voice activity detection) that you configure, and every setting had a tradeoff: cut the caller off, or make them wait.</p>
+<p class="lede">In my <a href="/blog/realtime-turn-detection/">last post</a> I measured how gpt-realtime-2.1 decides you&rsquo;ve finished talking. Its turn detection is a separate step (VAD, voice activity detection) that you configure, and every setting had a tradeoff: cut the caller off, or make them wait.</p>
 
 <p>GPT-Live-1 works differently. It&rsquo;s full duplex, so it listens while it talks, and there&rsquo;s no turn-detection setting to pick. I ran it on the same 12 sentences, 2 synthetic voices and 7 caller clips, for about $2.40.</p>
 
@@ -156,13 +156,13 @@
 </main>
 
 <footer class="container site">
-  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="../../index.html">sahasrarjn.com</a></span>
-  <span>Code and per-trial data: <a href="https://github.com/sahasrarjn/turnprobe">github.com/sahasrarjn/turnprobe</a> &middot; previous post: <a href="../realtime-turn-detection/">Measuring turn detection in OpenAI&rsquo;s Realtime API</a>.</span>
+  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="/index.html">sahasrarjn.com</a></span>
+  <span>Code and per-trial data: <a href="https://github.com/sahasrarjn/turnprobe">github.com/sahasrarjn/turnprobe</a> &middot; previous post: <a href="/blog/realtime-turn-detection/">Measuring turn detection in OpenAI&rsquo;s Realtime API</a>.</span>
 </footer>
 
 <div id="tip" hidden></div>
-<script src="data.js"></script>
-<script src="post.js"></script>
-<script src="../assets/blog.js"></script>
+<script src="/blog/gpt-live-vs-realtime/data.js"></script>
+<script src="/blog/gpt-live-vs-realtime/post.js"></script>
+<script src="/blog/assets/blog.js"></script>
 </body>
 </html>

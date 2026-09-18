@@ -16,8 +16,8 @@
 <meta property="og:image" content="https://www.sahasrarjn.com/blog/scaffold-splits/img/png/spread.png">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="../../assets/vendor/pico/pico.min.css">
-<link rel="stylesheet" href="../assets/blog.css">
+<link rel="stylesheet" href="/assets/vendor/pico/pico.min.css">
+<link rel="stylesheet" href="/blog/assets/blog.css">
 <script>
   // light by default; dark only if the reader chose it (applied before first paint, so no flash)
   (function(){try{if(localStorage.getItem('blog-theme')==='dark')
@@ -29,7 +29,7 @@
 <div id="progress"></div>
 
 <header class="container topbar">
-  <a href="../index.html">&larr; Writing</a>
+  <a href="/blog/">&larr; Writing</a>
   <span class="right">
     <span>4 August 2026</span>
     <button id="theme-toggle" type="button">Light</button>
@@ -2007,16 +2007,16 @@ https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/Lipophilicity.csv
 https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz
 https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/HIV.csv</code></pre>
   <ul>
-    <li><a href="split_audit.py"><code>split_audit.py</code></a> is the full audit: grouping and
+    <li><a href="/blog/scaffold-splits/split_audit.py"><code>split_audit.py</code></a> is the full audit: grouping and
       ordering as orthogonal axes, 5 seeds, MACCS cross-check, RF training.</li>
-    <li><a href="verify_deepchem.py"><code>verify_deepchem.py</code></a> transcribes DeepChem&rsquo;s
+    <li><a href="/blog/scaffold-splits/verify_deepchem.py"><code>verify_deepchem.py</code></a> transcribes DeepChem&rsquo;s
       <code>ScaffoldSplitter</code> verbatim and run under its own defaults, to check my
       reimplementation against the real thing.</li>
-    <li><a href="make_histogram.py"><code>make_histogram.py</code></a>,
-      <a href="make_spread.py"><code>make_spread.py</code></a> and
-      <a href="make_scaffold_figs.py"><code>make_scaffold_figs.py</code></a> build the figures. The
+    <li><a href="/blog/scaffold-splits/make_histogram.py"><code>make_histogram.py</code></a>,
+      <a href="/blog/scaffold-splits/make_spread.py"><code>make_spread.py</code></a> and
+      <a href="/blog/scaffold-splits/make_scaffold_figs.py"><code>make_scaffold_figs.py</code></a> build the figures. The
       molecule drawings are RDKit depictions of real dataset entries, not illustrations.</li>
-    <li><a href="audit_results.json"><code>audit_results.json</code></a> holds every number in this post.</li>
+    <li><a href="/blog/scaffold-splits/audit_results.json"><code>audit_results.json</code></a> holds every number in this post.</li>
   </ul>
   <p>
     Needs <code>rdkit</code>, <code>pandas</code>, <code>numpy</code>, <code>scikit-learn</code>,
@@ -2039,12 +2039,12 @@ https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/HIV.csv</code></pre>
 </main>
 
 <footer class="container site">
-  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="../../index.html">sahasrarjn.com</a></span>
+  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="/index.html">sahasrarjn.com</a></span>
   <span>All figures computed with RDKit 2026.03.5 on public MoleculeNet data, and drawn from the same JSON linked above.</span>
 </footer>
 
-<script src="../../assets/vendor/prism/prism-core.min.js"></script>
-<script src="../../assets/vendor/prism/prism-python.min.js"></script>
-<script src="../assets/blog.js"></script>
+<script src="/assets/vendor/prism/prism-core.min.js"></script>
+<script src="/assets/vendor/prism/prism-python.min.js"></script>
+<script src="/blog/assets/blog.js"></script>
 </body>
 </html>

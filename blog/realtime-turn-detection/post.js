@@ -377,7 +377,7 @@
       fig.appendChild(svg);
 
       var body = H("div", "tr-body"), left = H("div"), right = H("div");
-      var audio = H("audio"); audio.controls = true; audio.preload = "none"; audio.src = "audio/" + name + ".mp3";
+      var audio = H("audio"); audio.controls = true; audio.preload = "none"; audio.src = "/blog/realtime-turn-detection/audio/" + name + ".mp3";
       audio.addEventListener("timeupdate", function () {
         var ms = w0 + audio.currentTime * 1000;
         if (ms >= w0 && ms <= w1) { head.setAttribute("x1", x(ms)); head.setAttribute("x2", x(ms)); head.setAttribute("visibility", "visible"); }

@@ -297,7 +297,7 @@
     }
     function ensure() {
       if (audio) return audio;
-      audio = new Audio("audio/" + c.name + ".mp3");
+      audio = new Audio("/blog/gpt-live-vs-realtime/audio/" + c.name + ".mp3");
       audio.preload = "auto";
       audio.addEventListener("play", function () { row.classList.add("on"); if (playing && playing !== audio) playing.pause(); playing = audio; draw(); });
       audio.addEventListener("pause", function () { row.classList.remove("on"); cancelAnimationFrame(raf); draw(); });
