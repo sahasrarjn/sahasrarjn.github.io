@@ -109,9 +109,7 @@
 <section>
   <h2>What they claim</h2>
 
-  <p>TypeSafe came out of stealth on 15 September with 40 million dollars behind them. The founder, Diogo Almeida, worked on ChatGPT and on RLHF at OpenAI before spending about two years building this.</p>
-
-  <p>The headline numbers are 70 to 500 milliseconds end to end, four and a bit cents per million input tokens, and nothing at all for output. They also published a comparison against frontier models on four workflows: security triage, agent-trace review, invoice handling and customer service.</p>
+  <p>70 to 500 milliseconds a call, four cents per million input tokens, nothing for output. Against frontier models on four workflows: security triage, agent-trace review, invoices and customer service.</p>
 
   <div class="tscroll">
     <table>
@@ -125,37 +123,23 @@
     </table>
   </div>
 
-  <p>Read that as a price argument rather than a capability one. Jev matches the cheaper frontier model almost exactly and costs about a seventy-sixth as much per decision. It gives up six points to the bigger reasoning models, which cost two to four hundred times more.</p>
+  <p>That is a price argument, not a capability one. It matches the cheaper frontier model at about a seventy-sixth of the cost per decision, and gives up six points to the bigger ones.</p>
 
-  <p>One caveat worth holding onto: the "right answers" in that table were taken to be the average of what two frontier models predicted. So accuracy here measures agreement with an ensemble of other models, not agreement with reality. TypeSafe also wrote the four workflows themselves, which they acknowledge.</p>
-
-  <p>The claim I find more durable is a different one. Across the same tests, the share of calls that came back structurally unusable was 0% for Jev, 0.58% for OpenAI's smaller models, 5.73% for Opus 5 and 45.5% for Haiku 4.5. That zero is not a score anyone achieved. It is the only value the column can take, for reasons the next section gets into.</p>
-</section>
-
-<section>
-  <h2>What they did not publish</h2>
-
-  <p>No paper. No parameter count. Nothing about where the training data came from. Their training method has a name, Reinforcement Learning for Calibrated Decisions, and that is roughly all it has.</p>
-
-  <p>The omission that bothers me most is calibration. The whole pitch is that the probabilities mean something, and there is not a single reliability curve, expected calibration error or Brier score anywhere in the launch material. Their own FAQ lists "Is Jev just a smaller LLM?" as a question and then does not answer it.</p>
-
-  <p>That is not a scandal. Companies ship products without papers all the time. But it does mean that anyone who wants to know whether this design works has to go and find out.</p>
+  <p>Two things to hold onto. The "right answers" in that table were taken to be the average of what two other frontier models predicted, so accuracy there measures agreement with an ensemble rather than with reality. And there is no paper: no parameter count, no word on the training data, and, for a product sold on the honesty of its probabilities, no calibration numbers at all.</p>
 </section>
 
 <section>
   <h2>Where it is weak</h2>
 
-  <p>To their credit, TypeSafe are direct about this, and the list is coherent. These are all things a single pass with no room to work would be expected to struggle with.</p>
+  <p>TypeSafe are refreshingly direct about this, and the list is what you would expect of a single pass with no room to work.</p>
 
   <ul>
-    <li><b>Arithmetic and counting.</b> There are no intermediate steps, so there is nowhere to do the arithmetic.</li>
-    <li><b>Dates.</b> Treated as ordinary text, so "is this older than thirty days" is unreliable. Work it out in your own code and hand over the answer.</li>
-    <li><b>Chains of reasoning.</b> Accuracy falls away as the number of logical hops between the document and the answer grows.</li>
-    <li><b>Irrelevant detail.</b> A long document full of noise costs accuracy, and unlike a chat model you cannot instruct your way around it. You curate the input instead.</li>
-    <li><b>Hostile input.</b> Not hardened against it, which matters given that screening for jailbreaks is one of the pitched use cases.</li>
+    <li><b>Arithmetic and counting.</b> No intermediate steps, so nowhere to do the arithmetic.</li>
+    <li><b>Dates.</b> Treated as ordinary text. Work out "older than thirty days" yourself and hand over the answer.</li>
+    <li><b>Chains of reasoning.</b> Accuracy falls away as the hops between document and answer pile up.</li>
+    <li><b>Irrelevant detail.</b> A long, noisy document costs accuracy, and you cannot instruct your way around it.</li>
+    <li><b>Hostile input.</b> Not hardened against it, which matters given that jailbreak screening is a pitched use case.</li>
   </ul>
-
-  <p>Writing text is also absent, but that is the design rather than a gap.</p>
 </section>
 
 <section>
