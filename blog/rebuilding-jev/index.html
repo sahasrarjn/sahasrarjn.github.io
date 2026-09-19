@@ -103,7 +103,22 @@
 </section>
 
 <section>
+  <h2>How it was trained</h2>
+
+  <p>Four steps, and the second one is the unusual part.</p>
+
+  <figure>
+    <img src="/blog/rebuilding-jev/img/pipeline.png" alt="Four-stage pipeline: generate a document from a controlled recipe; compute the exact answer probabilities with Bayes' rule and use that distribution as the training target; score the options and compare against the truth with a cross-entropy plus Brier loss; test on 5,000 held-out documents against a known ceiling." width="900" loading="lazy">
+    <figcaption><b>The target is a probability, not a label.</b> Most training tells a model which answer was right. This tells it how likely each answer was &mdash; which is the only way it can learn to be honest about uncertainty.</figcaption>
+  </figure>
+
+  <p>The whole run is twenty thousand documents, ten epochs, forty seconds on a laptop CPU. Testing is five thousand held-out documents, and because the recipe is known I can also compute the <b>best score anyone could possibly get</b> &mdash; which makes &ldquo;is this good?&rdquo; a question with a number rather than a feeling.</p>
+</section>
+
+<section>
   <h2>Four guesses</h2>
+
+  <p><b>Did it work?</b> On the thing that matters most, yes &mdash; the model landed exactly on the best score the task allows, and its stated probabilities track reality closely. On flexible answer lists, only partly. And one of my four guesses turned out to be untestable on a task this simple.</p>
 
   <div class="guesses">
     <div>
@@ -136,7 +151,7 @@
 
   <p>So I trained three models that differed only in which parts of the text could see which other parts. They scored identically.</p>
 
-  <p>The reason is a layout detail I should have caught before running it. <b>The options sit at the end of the text.</b> So even under the most restrictive mask &mdash; where each word can only look backwards &mdash; the options are last, and looking backwards means looking at the whole document anyway.</p>
+  <p>The reason is in how the input is laid out. <b>The options sit at the end of the text.</b> So even under the most restrictive mask &mdash; where each word can only look backwards &mdash; the options are last, and looking backwards means looking at the whole document anyway.</p>
 
   <figure>
     <img src="/blog/rebuilding-jev/img/mask.png" alt="Three rows showing the same input under different masks. The options sit at the end, so even a backwards-only mask lets them see the whole document. Both masks score the same." width="900" loading="lazy">
@@ -218,7 +233,7 @@ Do you need conclusions about masks that hold on real text?
 
   <p>This is a 206,000-parameter model on invented data. It doesn&rsquo;t tell you how Jev is actually built &mdash; TypeSafe has confirmed nothing, and my mask inference could be wrong. The two failures are failures in <em>my</em> setup, and a bigger model on real text might behave differently.</p>
 
-  <p>What it did do is change what I&rsquo;d build. I went in thinking the clever mask was the interesting part and that flexible answer lists came free. The mask turned out to be untestable on my task, and the flexible answer lists turned out to need careful training and still not quite work.</p>
+  <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls work for the answer and not for the confidence. And a clever attention mask, on a task like this one, buys nothing over the plain one.</p>
 
   <p>Finding that out cost twenty cents.</p>
 

@@ -1,0 +1,59 @@
+<!doctype html><meta charset="utf-8"><style>@import "_base.css";
+.wrap{width:900px}
+.lane{display:flex;gap:11px;align-items:stretch;margin-bottom:9px}
+.tag{flex:0 0 96px;text-align:right;font-size:11px;font-weight:700;color:var(--ink-3);
+     letter-spacing:.06em;text-transform:uppercase;padding-top:13px}
+.b{flex:1;background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:11px 13px}
+.b.acc{border-color:var(--accent);border-width:1.5px}
+.h{font-size:13px;font-weight:700;margin-bottom:4px}
+.d{font-size:12px;color:var(--ink-2);line-height:1.5}
+.px{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink-2)}
+.split{display:flex;gap:11px}
+.split > div{flex:1}
+.down{text-align:center;color:var(--ink-3);font-size:15px;margin:0 0 9px 96px}
+.tw{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:6px;padding:9px 11px}
+.tw .h{color:var(--accent)}
+.cfg{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.cfg span{background:var(--soft);border:1px solid var(--rule);border-radius:4px;
+          padding:4px 8px;font-size:11px;color:var(--ink-2);font-family:ui-monospace,Menlo,monospace}
+</style>
+<div class="wrap">
+  <div class="ttl">The training pipeline</div>
+
+  <div class="lane"><div class="tag">1 &middot; data</div><div class="b">
+    <div class="h">Generate a document from a recipe I control</div>
+    <div class="d">Pick a category. Draw 6&ndash;14 words: with probability <b>0.20</b> from that category's
+      signature words, otherwise uniformly from the whole 40-word vocabulary.</div>
+    <div class="px" style="margin-top:7px">&ldquo;my bill was charged twice please help&rdquo; &nbsp;&rarr;&nbsp; billing</div>
+  </div></div>
+
+  <div class="down">&darr;</div>
+
+  <div class="lane"><div class="tag">2 &middot; target</div><div class="b acc">
+    <div class="h" style="color:var(--accent)">Compute the exact answer &mdash; as a probability</div>
+    <div class="d">Because I chose the recipe, Bayes' rule gives the true P(category | document) in closed form.
+      <b>That distribution is the training target</b>, not the label.</div>
+    <div class="px" style="margin-top:7px">billing 0.62 &nbsp; technical 0.19 &nbsp; sales 0.12 &nbsp; spam 0.07</div>
+  </div></div>
+
+  <div class="down">&darr;</div>
+
+  <div class="lane"><div class="tag">3 &middot; train</div><div class="b">
+    <div class="h">Score the options, compare to the truth</div>
+    <div class="split">
+      <div class="d">The model turns its scores into probabilities. The loss is how far those sit from the
+        true ones, plus a Brier term that rewards being right <em>and</em> honest about it.</div>
+      <div class="tw"><div class="px">loss = crossentropy(true, predicted)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + 0.3 &times; brier(predicted)</div></div>
+    </div>
+    <div class="cfg"><span>20,000 documents</span><span>10 epochs</span><span>AdamW, one-cycle</span><span>batch 128</span><span>40 s on a laptop CPU</span></div>
+  </div></div>
+
+  <div class="down">&darr;</div>
+
+  <div class="lane"><div class="tag">4 &middot; test</div><div class="b">
+    <div class="h">5,000 held-out documents &mdash; and a known ceiling</div>
+    <div class="d">Measure the answer it picks, how far its confidence sits from the truth, and how often its
+      stated probabilities match what actually happens. The recipe also gives the <b>best score anyone could
+      get</b> on this task, so "good" has a number.</div>
+  </div></div>
+</div>

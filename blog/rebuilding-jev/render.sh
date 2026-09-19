@@ -18,3 +18,4 @@ render order        900 300
   render calibration  860 400
 render surgery      900 648
 render io           900 600
+render pipeline     900 588
