@@ -13,7 +13,6 @@ render(){ # name width height
     --screenshot="$DIR/img/$1.png" "file://$DIR/fig/$1.html" >/dev/null 2>&1
   printf "  %-16s %s\n" "$1.png" "$(du -h "$DIR/img/$1.png" | cut -f1)"
 }
-render mask         900 400
 render order        900 300
   render calibration  860 400
 render surgery      900 648

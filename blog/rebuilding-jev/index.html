@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rebuilding Jev &middot; Sahasra Ranjan</title>
-<meta name="description" content="TypeSafe shipped Jev without a paper. I rebuilt a 206K-parameter version and made four guesses about how it works. Two were wrong: the attention mask changed nothing, and reordering the answer options flipped 36% of answers.">
-<meta name="keywords" content="Jev, TypeSafe AI, System One model, calibration, attention mask, classifier, machine learning, reproduction">
+<meta name="description" content="What TypeSafe's Jev is, what its makers do and do not tell you, and what happened when I built a small version: honest probabilities need honest targets, and flexible answer lists are shakier than they look.">
+<meta name="keywords" content="Jev, TypeSafe AI, System One model, calibration, structured output, classifier, machine learning, reproduction">
 <meta name="author" content="Sahasra Ranjan">
 <link rel="icon" href="/favicon.ico">
 <link rel="canonical" href="https://www.sahasrarjn.com/blog/rebuilding-jev/">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Rebuilding Jev">
-<meta property="og:description" content="A model that answers questions without generating text, rebuilt small. Four guesses about how it works; two were wrong.">
+<meta property="og:description" content="What Jev is, what TypeSafe do and do not publish, and what a small rebuild shows about whether the clever parts earn their place.">
 <meta property="og:image" content="https://www.sahasrarjn.com/blog/rebuilding-jev/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -43,7 +43,7 @@
   <header>
     <div class="kicker">Machine learning &middot; Reproduction</div>
     <h1>Rebuilding Jev</h1>
-    <p class="standfirst">TypeSafe shipped a model that answers questions about text without generating any text. The first half of this is what Jev is and what its makers do and do not tell you. The second half is a small one I built to check whether the parts that sounded clever actually matter. Two of my four guesses were wrong.</p>
+    <p class="standfirst">TypeSafe shipped a model that answers questions about text without generating any text. The first half of this is what Jev is and what its makers do and do not tell you. The second half is a small one I built to find out whether the parts that sound clever actually earn their place.</p>
     <div class="byline"><span>Sahasra Ranjan</span>
     <span>~8 min read</span>
     <span>206K parameters, trained from scratch &middot; CPU only &middot; <a href="https://github.com/sahasrarjn/system-one">code</a></span></div>
@@ -191,49 +191,9 @@
 </section>
 
 <section>
-  <h2>Four guesses</h2>
+  <h2>What I found</h2>
 
-  <p><b>Did it work?</b> On the thing that matters most, yes. The model landed exactly on the best score the task allows, and its stated probabilities track reality closely. On flexible answer lists, only partly. And one of my four guesses turned out to be untestable on a task this simple.</p>
-
-  <div class="guesses">
-    <div>
-      <p class="v nul">&#9681; no verdict</p>
-      <h4>The special mask matters</h4>
-      <p>All three masks tied at the ceiling: <b>0.6870 / 0.6868 / 0.6870</b>. My task couldn&rsquo;t tell them apart.</p>
-    </div>
-    <div>
-      <p class="v no">&times; wrong</p>
-      <h4>Answer order doesn&rsquo;t matter</h4>
-      <p>Reordering the options changed <b>36%</b> of answers. Training fixes it only down to <b>12%</b>.</p>
-    </div>
-    <div>
-      <p class="v ok">&check; right</p>
-      <h4>Honest probabilities survive harder tasks</h4>
-      <p>Soft targets won at all <b>5</b> difficulty settings, by <b>2.5&ndash;3.4&times;</b> on calibration error.</p>
-    </div>
-    <div>
-      <p class="v no">&times; half wrong</p>
-      <h4>New answer lists work for free</h4>
-      <p>Right answer, wrong confidence. Error against truth triples: <b>0.09 &rarr; 0.28</b>.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2>Why the mask test told me nothing</h2>
-
-  <p>Transformers control which words may look at which other words. I expected that choice to matter here: let the document look at itself in both directions but not forward at the options, and the document&rsquo;s work stops depending on what you asked, so you can reuse it across a dozen questions. That is the design I guessed Jev uses, though TypeSafe has confirmed nothing.</p>
-
-  <p>So I trained three models that differed only in which parts of the text could see which other parts. They scored identically.</p>
-
-  <p>The reason is in how the input is laid out. <b>The options sit at the end of the text.</b> So even under the most restrictive mask, where each word can only look backwards, the options are last, and looking backwards means looking at the whole document anyway.</p>
-
-  <figure>
-    <img src="/blog/rebuilding-jev/img/mask.png" alt="Three rows showing the same input under different masks. The options sit at the end, so even a backwards-only mask lets them see the whole document. Both masks score the same." width="900" loading="lazy">
-    <figcaption><b>A null result about my task, not about masks.</b> A task where word order matters would give a real answer; mine can&rsquo;t.</figcaption>
-  </figure>
-
-  <p>One thing did hold. The fully-open mask, where everything sees everything and the reuse trick becomes impossible, scored <b>+0.0002</b> better. So reusing the document&rsquo;s work costs nothing.</p>
+  <p>Three things, one good and two that would change how I built this for real.</p>
 </section>
 
 <section>
@@ -317,18 +277,15 @@ Do many questions share one long document?
 Do the answer options change between calls?
    <b>yes &rarr;</b> shuffle options in training, and measure the flip rate.
          Test calibration on unseen option sets separately.
-
-Do you need conclusions about masks that hold on real text?
-   <b>&rarr;</b> use a task where word order matters. Mine didn&rsquo;t.
   </div>
 </div>
 
 <section>
   <h2>What this doesn&rsquo;t show</h2>
 
-  <p>This is a 206,000-parameter model on invented data. It doesn&rsquo;t tell you how Jev is actually built. TypeSafe has confirmed nothing, and my mask inference could be wrong. The two failures are failures in <em>my</em> setup, and a bigger model on real text might behave differently.</p>
+  <p>This is a 206,000-parameter model on invented words. It does not tell you how Jev is actually built, because TypeSafe has confirmed nothing. What I measured is how this shape of model behaves on a task I made up, and a bigger one on real text may well behave differently.</p>
 
-  <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls work for the answer and not for the confidence. And a clever attention mask, on a task like this one, buys nothing over the plain one.</p>
+  <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls work for the answer and not for the confidence, which is the opposite of what makes the design attractive.</p>
 
   <p>Finding that out cost twenty cents.</p>
 

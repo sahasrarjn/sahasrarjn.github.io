@@ -1,0 +1,62 @@
+<!doctype html><meta charset="utf-8"><style>@import "_base.css";
+html,body{width:600px;height:315px;overflow:hidden}
+.card{width:600px;height:315px;padding:20px 22px 0;display:flex;flex-direction:column;
+      background:var(--paper);border-bottom:5px solid var(--accent)}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.t{font-family:"Source Serif 4",Georgia,serif;font-size:29px;font-weight:400;letter-spacing:-.015em;color:var(--ink)}
+.k{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.cols{display:flex;gap:9px;flex:1}
+.c{flex:1;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:9px 10px;
+   display:flex;flex-direction:column}
+.c.mid{border-color:var(--accent);border-width:1.5px;flex:1.25}
+.ch{font-size:7.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:7px}
+.c.mid .ch{color:var(--accent)}
+.c.mid .cap{margin-top:0}
+.px{font-family:ui-monospace,Menlo,monospace;font-size:8.2px;line-height:1.65;color:var(--ink-2)}
+.px .b{color:var(--accent);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:9px}
+.w{background:var(--soft);border:1px solid var(--rule);border-radius:3px;padding:3px 5px;font-size:8px;color:var(--ink-2)}
+.o{background:var(--accent-soft);border:1px solid var(--accent);border-radius:3px;padding:3px 5px;
+   font-size:8px;color:var(--accent);font-weight:700}
+.r{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:5px 7px;margin-bottom:4px}
+.r .n{font-size:7.5px;color:var(--ink-3)}
+.r .v{font-size:11px;font-weight:700;color:var(--ink);line-height:1.2}
+.r .p{font-size:8px;color:var(--accent);font-weight:700}
+.cap{font-size:7.5px;color:var(--ink-3);margin-top:auto;line-height:1.4}
+.foot{display:flex;justify-content:space-between;font-size:8.5px;color:var(--ink-3);padding:8px 0 9px}
+.foot b{color:var(--ink)}
+</style>
+<div class="card">
+  <div class="top"><div class="t">Rebuilding Jev</div><div class="k">A model that never writes a sentence</div></div>
+  <div class="cols">
+    <div class="c">
+      <div class="ch">You send</div>
+      <div class="px">{<br>
+        &nbsp;<span class="b">"document"</span>:<br>
+        &nbsp;&nbsp;&nbsp;"my bill was charged twice",<br>
+        &nbsp;<span class="b">"questions"</span>: {<br>
+        &nbsp;&nbsp;&nbsp;<span class="b">"category"</span>: ["billing",<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"technical", "sales", "spam"],<br>
+        &nbsp;&nbsp;&nbsp;<span class="b">"urgent"</span>: ["yes", "no"]<br>
+        &nbsp;}<br>}</div>
+      <div class="cap">You declare the options. That list is the contract.</div>
+    </div>
+    <div class="c mid">
+      <div class="ch">The model sees</div>
+      <div class="chips">
+        <span class="w">my</span><span class="w">bill</span><span class="w">was</span><span class="w">charged</span>
+        <span class="w">twice</span><span class="w">please</span><span class="w">help</span>
+        <span class="o">billing</span><span class="o">technical</span><span class="o">sales</span><span class="o">spam</span>
+      </div>
+      <div class="cap">One flat sequence. The options are appended as ordinary words, so the model reads the document and the candidate answers together, in a single pass with no generation loop.</div>
+    </div>
+    <div class="c">
+      <div class="ch">You get back</div>
+      <div class="r"><div class="n">category</div><div class="v">billing</div><div class="p">p = 0.59</div></div>
+      <div class="r"><div class="n">urgent</div><div class="v">yes</div><div class="p">p = 0.88</div></div>
+      <div class="r"><div class="n">confidence</div><div class="v">0.41</div><div class="p">low, route to a human</div></div>
+      <div class="cap">Typed values, not text. Every set sums to 1 over the options you listed, so there is nothing to parse.</div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Sahasra Ranjan</b> &middot; sahasrarjn.com</span><span>19 September 2026</span></div>
+</div>
