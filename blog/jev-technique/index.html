@@ -8,17 +8,17 @@
 <meta name="keywords" content="Jev, TypeSafe AI, System One model, calibration, structured output, classifier, machine learning, reproduction">
 <meta name="author" content="Sahasra Ranjan">
 <link rel="icon" href="/favicon.ico">
-<link rel="canonical" href="https://www.sahasrarjn.com/blog/rebuilding-jev/">
+<link rel="canonical" href="https://www.sahasrarjn.com/blog/jev-technique/">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="The Technique Behind Jev">
 <meta property="og:description" content="What Jev is, what TypeSafe do and do not publish, and what a small rebuild shows about whether the clever parts earn their place.">
-<meta property="og:image" content="https://www.sahasrarjn.com/blog/rebuilding-jev/og.png">
+<meta property="og:image" content="https://www.sahasrarjn.com/blog/jev-technique/og.png">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="stylesheet" href="/assets/vendor/pico/pico.min.css">
 <link rel="stylesheet" href="/blog/assets/blog.css">
-<link rel="stylesheet" href="/blog/rebuilding-jev/post.css">
+<link rel="stylesheet" href="/blog/jev-technique/post.css">
 <script>
   // light by default; dark only if the reader chose it (applied before first paint, so no flash)
   (function(){try{if(localStorage.getItem('blog-theme')==='dark')
@@ -61,7 +61,7 @@
   <p>It never writes a sentence. There is no token-by-token generation, so a call takes one pass through the model instead of dozens. That is why they can charge for input and give output away free. There is no output to charge for.</p>
 
   <figure>
-    <img src="/blog/rebuilding-jev/img/io.png" alt="Three stages. You send a document plus questions whose answer options you declare. The model sees one flat sequence of the document words followed by the option words. You get back typed values with probabilities." width="900" loading="lazy">
+    <img src="/blog/jev-technique/img/io.png" alt="Three stages. You send a document plus questions whose answer options you declare. The model sees one flat sequence of the document words followed by the option words. You get back typed values with probabilities." width="900" loading="lazy">
     <figcaption><b>The options are part of the input, not baked into the model.</b> That is what lets you change them on every call. Every probability set sums to 1 over the list you supplied, so there is nothing to parse.</figcaption>
   </figure>
 
@@ -99,7 +99,7 @@
   <p>Delete it and put a layer that produces <em>one score per option</em> in its place. That layer is 1,025 numbers. The generation loop goes with it, because there is no next word to guess.</p>
 
   <figure>
-    <img src="/blog/rebuilding-jev/img/surgery.png" alt="Two model stacks side by side. Both share word embeddings and four transformer layers. The language model's last layer scores all 151,936 vocabulary words and feeds a generation loop, both marked removed. This model's last layer produces one score per option, with no loop." width="900" loading="lazy">
+    <img src="/blog/jev-technique/img/surgery.png" alt="Two model stacks side by side. Both share word embeddings and four transformer layers. The language model's last layer scores all 151,936 vocabulary words and feeds a generation loop, both marked removed. This model's last layer produces one score per option, with no loop." width="900" loading="lazy">
     <figcaption><b>Everything below the arrow is identical.</b> The removed layer is drawn faded because it is the only structural change, along with the loop that depended on it.</figcaption>
   </figure>
 
@@ -167,7 +167,7 @@
   <p>Four steps, and the second one is the unusual part.</p>
 
   <figure>
-    <img src="/blog/rebuilding-jev/img/pipeline.png" alt="Four-stage pipeline: generate a document from a controlled recipe; compute the exact answer probabilities with Bayes' rule and use that distribution as the training target; score the options and compare against the truth with a cross-entropy plus Brier loss; test on 5,000 held-out documents against a known ceiling." width="900" loading="lazy">
+    <img src="/blog/jev-technique/img/pipeline.png" alt="Four-stage pipeline: generate a document from a controlled recipe; compute the exact answer probabilities with Bayes' rule and use that distribution as the training target; score the options and compare against the truth with a cross-entropy plus Brier loss; test on 5,000 held-out documents against a known ceiling." width="900" loading="lazy">
     <figcaption><b>The target is a probability, not a label.</b> Most training tells a model which answer was right. This tells it how likely each answer was, which is the only way it can learn to be honest about uncertainty.</figcaption>
   </figure>
 
@@ -192,7 +192,7 @@
   <p>So take the ability away. Give every option slot the same position marker. The slots then differ only by the word in them, permuting the options permutes the scores, and nothing else moves.</p>
 
   <figure>
-    <img src="/blog/rebuilding-jev/img/order.png" alt="Four configurations compared. With a separate position per option slot, 34.8% of answers flip when the options are reordered, or 12.1% if training shuffles them. With one shared position, flips are exactly 0.0% either way, and the confidence error improves from 0.0389 to 0.0230." width="900" loading="lazy">
+    <img src="/blog/jev-technique/img/order.png" alt="Four configurations compared. With a separate position per option slot, 34.8% of answers flip when the options are reordered, or 12.1% if training shuffles them. With one shared position, flips are exactly 0.0% either way, and the confidence error improves from 0.0389 to 0.0230." width="900" loading="lazy">
     <figcaption><b>Exactly zero, not nearly zero.</b> With a shared position the model has no way to represent "which slot this is", so order-invariance holds by construction rather than because training taught it.</figcaption>
   </figure>
 
@@ -207,7 +207,7 @@
   <p>Two identical models. One trained on the right answer. One trained on the right answer&rsquo;s <em>probability</em>.</p>
 
   <figure>
-    <img src="/blog/rebuilding-jev/img/calibration.png" alt="Line chart of confidence error across five difficulty settings. The model trained on probabilities is below the one trained on labels at every point." width="900" loading="lazy">
+    <img src="/blog/jev-technique/img/calibration.png" alt="Line chart of confidence error across five difficulty settings. The model trained on probabilities is below the one trained on labels at every point." width="900" loading="lazy">
     <figcaption><b>Five separately trained pairs.</b> Training on probabilities wins everywhere, and wins by more as the task gets harder.</figcaption>
   </figure>
 
