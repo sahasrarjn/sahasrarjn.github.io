@@ -46,7 +46,7 @@
     <p class="standfirst">A new model answers questions about text without generating any text. It shipped without a paper, so I rebuilt a small version and made four guesses about how it works. Two were wrong &mdash; including the one the whole design appears to rest on.</p>
     <div class="byline"><span>Sahasra Ranjan</span>
     <span>~8 min read</span>
-    <span>206K parameters &middot; CPU only &middot; <a href="https://github.com/sahasrarjn/system-one">code</a></span></div>
+    <span>206K parameters, trained from scratch &middot; CPU only &middot; <a href="https://github.com/sahasrarjn/system-one">code</a></span></div>
   </header>
 
   <details id="toc">
@@ -89,6 +89,8 @@
   <h2>The toy I built</h2>
 
   <p>206,081 parameters. Four transformer layers. It trains on a laptop CPU in forty seconds. <a href="https://github.com/sahasrarjn/system-one/tree/main/tiny">All of it is here</a> &mdash; about 600 lines, no framework beyond PyTorch.</p>
+
+  <p><b>Nothing here is pretrained.</b> The weights start random and only ever see the made-up data below. Where I quote Qwen3-0.6B figures, that is a size comparison to show what the same change costs on a real model &mdash; I never trained it, and none of the results come from it.</p>
 
   <p>The training data is made up, and that is the point. I generate each document from a recipe I choose, so I can compute the correct answer&rsquo;s exact probability with Bayes&rsquo; rule.</p>
 
