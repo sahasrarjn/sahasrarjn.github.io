@@ -43,7 +43,7 @@
   <header>
     <div class="kicker">Machine learning &middot; Reproduction</div>
     <h1>Rebuilding Jev</h1>
-    <p class="standfirst">A new model answers questions about text without generating any text. It shipped without a paper, so I rebuilt a small version and made four guesses about how it works. Two were wrong, including the one the whole design appears to rest on.</p>
+    <p class="standfirst">TypeSafe shipped a model that answers questions about text without generating any text. The first half of this is what Jev is and what its makers do and do not tell you. The second half is a small one I built to check whether the parts that sounded clever actually matter. Two of my four guesses were wrong.</p>
     <div class="byline"><span>Sahasra Ranjan</span>
     <span>~8 min read</span>
     <span>206K parameters, trained from scratch &middot; CPU only &middot; <a href="https://github.com/sahasrarjn/system-one">code</a></span></div>
@@ -69,6 +69,27 @@
 </section>
 
 <section>
+  <h2>Three kinds of question</h2>
+
+  <p>You do not describe what you want in a sentence and hope. You declare questions, and every question is one of exactly three shapes.</p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Type</th><th>You give it</th><th>You get back</th></tr></thead>
+      <tbody>
+        <tr><td>yes / no</td><td>a question</td><td class="num">a single probability</td></tr>
+        <tr><td>choice</td><td>up to 255 options</td><td class="num">the pick, plus how the probability is spread over the rest</td></tr>
+        <tr><td>score</td><td>an ordered scale, 2 to 10 steps</td><td class="num">a weighted average across the scale</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The yes/no type is the one that gives the design away. It returns a probability rather than a boolean, so the threshold lives in your code rather than in the model. You decide what counts as confident enough.</p>
+
+  <p>The score type is quietly clever too. It is not a number the model writes down. It is the average across an ordered scale, weighted by how likely each step is, which is why it moves smoothly instead of clustering on round numbers the way a model asked to "rate this 1 to 10" tends to.</p>
+</section>
+
+<section>
   <h2>What actually changed inside the model</h2>
 
   <p>The body of the model is an ordinary transformer: embeddings, then a stack of layers. Nothing there is new.</p>
@@ -86,7 +107,61 @@
 </section>
 
 <section>
+  <h2>What they claim</h2>
+
+  <p>TypeSafe came out of stealth on 15 September with 40 million dollars behind them. The founder, Diogo Almeida, worked on ChatGPT and on RLHF at OpenAI before spending about two years building this.</p>
+
+  <p>The headline numbers are 70 to 500 milliseconds end to end, four and a bit cents per million input tokens, and nothing at all for output. They also published a comparison against frontier models on four workflows: security triage, agent-trace review, invoice handling and customer service.</p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Model</th><th class="num">Accuracy</th><th class="num">Cost per decision</th><th class="num">Latency</th></tr></thead>
+      <tbody>
+        <tr><td>Jev</td><td class="num">67.8%</td><td class="num">$0.0004</td><td class="num">0.4 s</td></tr>
+        <tr><td>GPT-5.6 Terra</td><td class="num">67.9%</td><td class="num">$0.0304</td><td class="num">10.1 s</td></tr>
+        <tr><td>GPT-5.6 Sol</td><td class="num">74.1%</td><td class="num">$0.0836</td><td class="num">23.3 s</td></tr>
+        <tr><td>Claude Opus 5</td><td class="num">73.1%</td><td class="num">$0.1761</td><td class="num">37.8 s</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Read that as a price argument rather than a capability one. Jev matches the cheaper frontier model almost exactly and costs about a seventy-sixth as much per decision. It gives up six points to the bigger reasoning models, which cost two to four hundred times more.</p>
+
+  <p>One caveat worth holding onto: the "right answers" in that table were taken to be the average of what two frontier models predicted. So accuracy here measures agreement with an ensemble of other models, not agreement with reality. TypeSafe also wrote the four workflows themselves, which they acknowledge.</p>
+
+  <p>The claim I find more durable is a different one. Across the same tests, the share of calls that came back structurally unusable was 0% for Jev, 0.58% for OpenAI's smaller models, 5.73% for Opus 5 and 45.5% for Haiku 4.5. That zero is not a score anyone achieved. It is the only value the column can take, for reasons the next section gets into.</p>
+</section>
+
+<section>
+  <h2>What they did not publish</h2>
+
+  <p>No paper. No parameter count. Nothing about where the training data came from. Their training method has a name, Reinforcement Learning for Calibrated Decisions, and that is roughly all it has.</p>
+
+  <p>The omission that bothers me most is calibration. The whole pitch is that the probabilities mean something, and there is not a single reliability curve, expected calibration error or Brier score anywhere in the launch material. Their own FAQ lists "Is Jev just a smaller LLM?" as a question and then does not answer it.</p>
+
+  <p>That is not a scandal. Companies ship products without papers all the time. But it does mean that anyone who wants to know whether this design works has to go and find out.</p>
+</section>
+
+<section>
+  <h2>Where it is weak</h2>
+
+  <p>To their credit, TypeSafe are direct about this, and the list is coherent. These are all things a single pass with no room to work would be expected to struggle with.</p>
+
+  <ul>
+    <li><b>Arithmetic and counting.</b> There are no intermediate steps, so there is nowhere to do the arithmetic.</li>
+    <li><b>Dates.</b> Treated as ordinary text, so "is this older than thirty days" is unreliable. Work it out in your own code and hand over the answer.</li>
+    <li><b>Chains of reasoning.</b> Accuracy falls away as the number of logical hops between the document and the answer grows.</li>
+    <li><b>Irrelevant detail.</b> A long document full of noise costs accuracy, and unlike a chat model you cannot instruct your way around it. You curate the input instead.</li>
+    <li><b>Hostile input.</b> Not hardened against it, which matters given that screening for jailbreaks is one of the pitched use cases.</li>
+  </ul>
+
+  <p>Writing text is also absent, but that is the design rather than a gap.</p>
+</section>
+
+<section>
   <h2>The toy I built</h2>
+
+  <p>That is everything I could learn about Jev from the outside. The rest of this is what happened when I built a small version to check whether the parts that sounded clever actually do anything.</p>
 
   <p>206,081 parameters. Four transformer layers. It trains on a laptop CPU in forty seconds. <a href="https://github.com/sahasrarjn/system-one/tree/main/tiny">All of it is here</a>: about 600 lines, no framework beyond PyTorch.</p>
 
@@ -211,6 +286,26 @@
 
 <div class="takeaways">
   <h2>Should you build one?</h2>
+
+  <p>Before answering that I ran the obvious control, because the post kept telling you to use a plain classifier instead without ever measuring one. Same backbone, same loss, same seed. The only changes are that the options leave the input and the head becomes a fixed four-way one.</p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>&nbsp;</th><th class="num">Flexible options</th><th class="num">Plain classifier</th></tr></thead>
+      <tbody>
+        <tr><td>accuracy</td><td class="num">0.6868</td><td class="num">0.6868</td></tr>
+        <tr><td>confidence error</td><td class="num">0.0389</td><td class="num">0.0380</td></tr>
+        <tr><td>distance from truth</td><td class="num">0.0908</td><td class="num">0.0941</td></tr>
+        <tr><td>per call</td><td class="num">0.677 ms</td><td class="num">0.656 ms</td></tr>
+        <tr><td>answer list can change</td><td class="num">yes</td><td class="num">no</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>They are the same model to within noise. I had expected the plain one to be meaningfully quicker, since its input is 14 tokens rather than 18, but at this size the fixed overhead of a forward pass swamps four tokens and the gap is 3%.</p>
+
+  <p>So the flexible design buys precisely one thing, and it is the thing measured at 36% order sensitivity with confidence that does not survive an unfamiliar answer list. That is the whole decision:</p>
+
   <div class="tree">
 Is your list of possible answers fixed?
    <b>yes &rarr;</b> use an ordinary classifier. Smaller, faster, simpler.
@@ -236,6 +331,8 @@ Do you need conclusions about masks that hold on real text?
   <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls work for the answer and not for the confidence. And a clever attention mask, on a task like this one, buys nothing over the plain one.</p>
 
   <p>Finding that out cost twenty cents.</p>
+
+  <p>The obvious next step is the one I cannot run yet. All of this is a tiny model on invented words, and the interesting version is a real one on real text: a few hundred million parameters, actual support tickets and moderation data, and the same four questions asked again. That needs a GPU, and my cloud quota request for one is still sitting in a queue. When it clears I will write up what changes.</p>
 
   <p class="note">The model, the four ablations and every number in this post are at
   <a href="https://github.com/sahasrarjn/system-one">github.com/sahasrarjn/system-one</a>.
