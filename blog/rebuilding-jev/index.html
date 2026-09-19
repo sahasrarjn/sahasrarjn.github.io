@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rebuilding Jev &middot; Sahasra Ranjan</title>
+<meta name="description" content="TypeSafe shipped Jev without a paper. I rebuilt a 206K-parameter version and made four guesses about how it works. Two were wrong: the attention mask changed nothing, and reordering the answer options flipped 36% of answers.">
+<meta name="keywords" content="Jev, TypeSafe AI, System One model, calibration, attention mask, classifier, machine learning, reproduction">
+<meta name="author" content="Sahasra Ranjan">
+<link rel="icon" href="/favicon.ico">
+<link rel="canonical" href="https://www.sahasrarjn.com/blog/rebuilding-jev/">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rebuilding Jev">
+<meta property="og:description" content="A model that answers questions without generating text, rebuilt small. Four guesses about how it works; two were wrong.">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/vendor/pico/pico.min.css">
+<link rel="stylesheet" href="/blog/assets/blog.css">
+<link rel="stylesheet" href="/blog/rebuilding-jev/post.css">
+<script>
+  // light by default; dark only if the reader chose it (applied before first paint, so no flash)
+  (function(){try{if(localStorage.getItem('blog-theme')==='dark')
+    document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+</script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="container topbar">
+  <a href="/blog/">&larr; Writing</a>
+  <span class="right">
+    <span>19 September 2026</span>
+    <button id="theme-toggle" type="button">Light</button>
+  </span>
+</header>
+
+<main class="container">
+<article>
+
+  <header>
+    <div class="kicker">Machine learning &middot; Reproduction</div>
+    <h1>Rebuilding Jev</h1>
+    <p class="standfirst">A new model answers questions about text without generating any text. It shipped without a paper, so I rebuilt a small version and made four guesses about how it works. Two were wrong &mdash; including the one the whole design appears to rest on.</p>
+    <div class="byline"><span>Sahasra Ranjan</span>
+    <span>~8 min read</span>
+    <span>206K parameters &middot; CPU only &middot; <a href="https://github.com/sahasrarjn/system-one">code</a></span></div>
+  </header>
+
+  <details id="toc">
+    <summary>Contents</summary>
+  </details>
+
+<section>
+  <h2>What Jev does</h2>
+
+  <p>TypeSafe AI released Jev last week. You give it a document and a list of questions whose possible answers are fixed in advance. It returns one answer per question, each with a probability.</p>
+
+  <p>It never writes a sentence. There is no token-by-token generation, so a call takes one pass through the model instead of dozens. That is why they can charge for input and give output away free &mdash; there is no output to charge for.</p>
+
+  <figure class="chart">
+    <svg viewBox="0 0 860 200" role="img" aria-label="Jev takes a document plus questions with fixed answer options, and returns one answer per question with a probability. An answer cannot fall outside the options supplied.">
+      <g font-size="13" fill="currentColor">
+        <rect class="bx" x="12" y="26" width="228" height="52" rx="4"/>
+        <text x="126" y="48" text-anchor="middle" font-size="11.5" class="tF">DOCUMENT</text>
+        <text x="126" y="67" text-anchor="middle" font-size="12">&ldquo;charged twice for a refund&hellip;&rdquo;</text>
+
+        <rect class="bx" x="12" y="96" width="228" height="74" rx="4"/>
+        <text x="126" y="118" text-anchor="middle" font-size="11.5" class="tF">QUESTIONS + OPTIONS</text>
+        <text x="126" y="138" text-anchor="middle" font-size="12">category: billing | tech | sales</text>
+        <text x="126" y="156" text-anchor="middle" font-size="12">urgent: yes | no</text>
+
+        <path d="M 248 98 L 296 98" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <path d="M 290 93 L 298 98 L 290 103 z" fill="currentColor"/>
+
+        <rect class="bxA" x="306" y="66" width="176" height="64" rx="4"/>
+        <text x="394" y="93" text-anchor="middle" class="tA" font-size="14">one pass</text>
+        <text x="394" y="113" text-anchor="middle" font-size="11.5" class="tF">no generation loop</text>
+
+        <path d="M 490 98 L 538 98" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <path d="M 532 93 L 540 98 L 532 103 z" fill="currentColor"/>
+
+        <rect class="bxA" x="548" y="58" width="298" height="38" rx="4"/>
+        <text x="564" y="82" font-size="13" class="tA">category = billing</text>
+        <text x="830" y="82" text-anchor="end" font-size="13" class="tA">p 0.62</text>
+
+        <rect class="bxA" x="548" y="104" width="298" height="38" rx="4"/>
+        <text x="564" y="128" font-size="13" class="tA">urgent = yes</text>
+        <text x="830" y="128" text-anchor="end" font-size="13" class="tA">p 0.88</text>
+
+        <text x="697" y="166" text-anchor="middle" font-size="11.5" class="tF">an answer cannot fall outside the options you gave</text>
+      </g>
+    </svg>
+    <figcaption><b>The type guarantee is structural.</b> Because answers are picked from a list you supply, an invalid answer is not unlikely &mdash; it is impossible. A model that writes JSON has to be checked afterwards; this one does not.</figcaption>
+  </figure>
+
+  <p>No paper came with it. No parameter count, no training details, and no calibration numbers &mdash; which is odd, because calibrated probabilities are the whole pitch.</p>
+</section>
+
+<section>
+  <h2>A clue in the rate limits</h2>
+
+  <p>Most of the design is guessable. Take a normal transformer, delete the part that predicts the next word, put a small scoring head on top. That shape has existed for years.</p>
+
+  <p>The attention mask is the part that isn&rsquo;t guessable. But the docs give it away.</p>
+
+  <p>Jev&rsquo;s published limit is 64,000 tokens per request &mdash; but only 32,000 for <b>&ldquo;state plus the longest individual question.&rdquo;</b> Not the sum of the questions. The longest one.</p>
+
+  <p>A limit shaped like that only makes sense if the document is processed once and every question reuses that same work. Which pins down the mask.</p>
+
+  <figure class="chart">
+    <svg viewBox="0 0 760 300" role="img" aria-label="An attention grid split into document and option halves. The document attends to itself, options attend to the document, and options attend to each other. The document does not attend to the options, which lets the document's work be reused across questions.">
+      <g font-size="12.5" fill="currentColor">
+        <text x="68" y="22" font-size="11" class="tF">WHO CAN LOOK AT WHOM</text>
+
+        <rect x="68" y="34" width="190" height="150" class="bxA" rx="3"/>
+        <text x="163" y="104" text-anchor="middle" class="tA" font-size="14">doc &harr; doc</text>
+        <text x="163" y="126" text-anchor="middle" font-size="11.5" class="tF">looks both ways</text>
+
+        <rect x="260" y="34" width="110" height="150" class="bxD" rx="3"/>
+        <text x="315" y="100" text-anchor="middle" font-size="25" class="tF">&times;</text>
+        <text x="315" y="126" text-anchor="middle" font-size="11.5" class="tF">blocked</text>
+
+        <rect x="68" y="186" width="190" height="80" class="bxA" rx="3"/>
+        <text x="163" y="232" text-anchor="middle" class="tA" font-size="13">options &rarr; doc</text>
+
+        <rect x="260" y="186" width="110" height="80" class="bxA" rx="3"/>
+        <text x="315" y="226" text-anchor="middle" class="tA" font-size="12">options &harr;</text>
+        <text x="315" y="244" text-anchor="middle" class="tA" font-size="12">options</text>
+
+        <text x="163" y="286" text-anchor="middle" font-size="11.5" class="tF">the document</text>
+        <text x="315" y="286" text-anchor="middle" font-size="11.5" class="tF">the options</text>
+        <text x="60" y="114" text-anchor="end" font-size="11.5" class="tF">doc</text>
+        <text x="60" y="232" text-anchor="end" font-size="11.5" class="tF">options</text>
+
+        <path d="M 382 108 L 414 108" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        <path d="M 408 103 L 416 108 L 408 113 z" fill="currentColor"/>
+        <text x="426" y="90" font-size="13">Because the document never looks</text>
+        <text x="426" y="112" font-size="13">at the options, its work doesn&rsquo;t</text>
+        <text x="426" y="134" font-size="13">depend on what you asked.</text>
+        <text x="426" y="164" font-size="13" class="tA">Ask twelve questions, pay for</text>
+        <text x="426" y="186" font-size="13" class="tA">roughly one.</text>
+      </g>
+    </svg>
+    <figcaption><b>This is my inference, not something TypeSafe published.</b> It fits their documented limit. It is not confirmed, and it could be wrong.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>The toy I built</h2>
+
+  <p>206,081 parameters. Four transformer layers. It trains on a laptop CPU in forty seconds. <a href="https://github.com/sahasrarjn/system-one/tree/main/tiny">All of it is here</a> &mdash; about 600 lines, no framework beyond PyTorch.</p>
+
+  <p>The training data is made up, and that is the point. I generate each document from a recipe I choose, so I can compute the correct answer&rsquo;s exact probability with Bayes&rsquo; rule.</p>
+
+  <p>That gives me something real data never does: a <b>ceiling</b>. On this task the best possible score is 0.687. When my model scores 0.687 it isn&rsquo;t mediocre, it&rsquo;s perfect &mdash; and the other 31% is the task being genuinely undecidable.</p>
+
+  <div class="callout">
+    <div class="h">One limitation, stated up front</div>
+    <p>My documents are bags of words &mdash; shuffling the words doesn&rsquo;t change the right answer. That turns out to break one of the four experiments, and it&rsquo;s better to know it now than to discover it in the results.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Four guesses</h2>
+
+  <div class="guesses">
+    <div>
+      <p class="v nul">&#9681; no verdict</p>
+      <h4>The special mask matters</h4>
+      <p>All three masks tied at the ceiling: <b>0.6870 / 0.6868 / 0.6870</b>. My task couldn&rsquo;t tell them apart.</p>
+    </div>
+    <div>
+      <p class="v no">&times; wrong</p>
+      <h4>Answer order doesn&rsquo;t matter</h4>
+      <p>Reordering the options changed <b>36%</b> of answers. Training fixes it only down to <b>12%</b>.</p>
+    </div>
+    <div>
+      <p class="v ok">&check; right</p>
+      <h4>Honest probabilities survive harder tasks</h4>
+      <p>Soft targets won at all <b>5</b> difficulty settings, by <b>2&ndash;3&times;</b> on calibration error.</p>
+    </div>
+    <div>
+      <p class="v no">&times; half wrong</p>
+      <h4>New answer lists work for free</h4>
+      <p>Right answer, wrong confidence. Error against truth triples: <b>0.09 &rarr; 0.28</b>.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Why the mask test told me nothing</h2>
+
+  <p>I trained three models that differed only in which parts of the text could see which other parts. They scored identically.</p>
+
+  <p>The reason is a layout detail I should have caught before running it. <b>The options sit at the end of the text.</b> So even under the most restrictive mask &mdash; where each word can only look backwards &mdash; the options are last, and looking backwards means looking at the whole document anyway.</p>
+
+  <figure class="chart">
+    <svg viewBox="0 0 760 170" role="img" aria-label="Document tokens come first, option tokens last. Even a backward-only mask lets the final option position see the entire document, so the restrictive mask costs almost nothing.">
+      <g font-size="12.5" fill="currentColor">
+        <rect class="bx" x="28" y="38" width="420" height="42" rx="4"/>
+        <text x="238" y="65" text-anchor="middle" font-size="13" class="tF">the document &mdash; 14 words</text>
+        <rect class="bxA" x="456" y="38" width="240" height="42" rx="4"/>
+        <text x="576" y="65" text-anchor="middle" font-size="13" class="tA">the options</text>
+
+        <path d="M 576 88 C 576 124, 238 124, 38 100" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+        <path d="M 44 94 L 34 100 L 45 105 z" fill="var(--accent)"/>
+        <text x="330" y="146" text-anchor="middle" font-size="13" class="tA">looking backwards from here already reaches everything</text>
+      </g>
+    </svg>
+    <figcaption><b>A null result about my task, not about masks.</b> The restrictive mask only stops earlier words from seeing later ones. For a bag of words, nothing is lost. A task where word order matters would give a real answer; mine can&rsquo;t.</figcaption>
+  </figure>
+
+  <p>One thing did hold. The fully-open mask &mdash; where everything sees everything, and the reuse trick becomes impossible &mdash; scored <b>+0.0002</b> better. So reusing the document&rsquo;s work costs nothing.</p>
+</section>
+
+<section>
+  <h2>Why the answer order broke it</h2>
+
+  <p>I listed the same options in a different order and asked again. More than a third of the answers changed.</p>
+
+  <figure class="chart">
+    <svg viewBox="0 0 760 220" role="img" aria-label="How often the answer changes when the option order changes. Trained on a fixed order, 36.3 percent flip. Trained with shuffled options, 11.9 percent. Zero would be order-independent.">
+      <g font-size="13" fill="currentColor">
+        <text x="28" y="26" font-size="11" class="tF">HOW OFTEN THE ANSWER CHANGES WHEN YOU REORDER THE OPTIONS</text>
+
+        <text x="28" y="72" font-size="13">trained on a fixed order</text>
+        <rect x="296" y="54" width="400" height="26" rx="3" fill="currentColor" opacity=".08"/>
+        <rect x="296" y="54" width="363" height="26" rx="3" fill="var(--no)"/>
+        <text x="671" y="73" font-size="14" fill="var(--no)" font-weight="600">36.3%</text>
+
+        <text x="28" y="128" font-size="13">trained on shuffled orders</text>
+        <rect x="296" y="110" width="400" height="26" rx="3" fill="currentColor" opacity=".08"/>
+        <rect x="296" y="110" width="119" height="26" rx="3" class="sB" stroke="none"/>
+        <text x="427" y="129" font-size="14" class="sB" stroke="none" font-weight="600">11.9%</text>
+
+        <text x="28" y="184" font-size="13" class="tF">what you&rsquo;d want</text>
+        <rect x="296" y="166" width="400" height="26" rx="3" fill="currentColor" opacity=".08"/>
+        <rect x="296" y="166" width="3" height="26" fill="var(--ok)"/>
+        <text x="311" y="185" font-size="14" fill="var(--ok)" font-weight="600">0%</text>
+      </g>
+    </svg>
+    <figcaption><b>Position, not meaning.</b> The model can tell the slots apart by where they sit, so it learns &ldquo;the third slot means sales.&rdquo; Shuffling during training helps a lot and does not fix it.</figcaption>
+  </figure>
+
+  <p>This is the result that changed what I&rsquo;d build. Picking answers from a list you supply at call time is the most attractive thing about this design &mdash; and it is much shakier than it looks.</p>
+</section>
+
+<section>
+  <h2>Why honest probabilities need honest targets</h2>
+
+  <p>Two identical models. One trained on the right answer. One trained on the right answer&rsquo;s <em>probability</em>.</p>
+
+  <figure class="chart">
+    <svg viewBox="0 0 700 350" role="img" aria-label="Calibration error against task difficulty across five settings. Trained on plain labels the error runs from 0.140 to 0.047. Trained on probabilities it is lower at every point, 0.057 to 0.016.">
+      <g font-size="12" fill="currentColor">
+        <g stroke="currentColor" opacity=".12" stroke-width="1">
+          <line x1="86" y1="286" x2="636" y2="286"/><line x1="86" y1="207" x2="636" y2="207"/>
+          <line x1="86" y1="128" x2="636" y2="128"/><line x1="86" y1="49" x2="636" y2="49"/>
+        </g>
+        <line x1="86" y1="286" x2="636" y2="286" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="86" y1="49" x2="86" y2="286" stroke="currentColor" stroke-width="1.3"/>
+
+        <polyline fill="none" class="sB" stroke-width="3" stroke-linejoin="round"
+          points="86,65 223,120 361,164 498,180 636,211"/>
+        <g class="sB" stroke="none">
+          <circle cx="86" cy="65" r="5"/><circle cx="223" cy="120" r="5"/><circle cx="361" cy="164" r="5"/>
+          <circle cx="498" cy="180" r="5"/><circle cx="636" cy="211" r="5"/>
+        </g>
+        <polyline fill="none" class="sA" stroke-width="3" stroke-linejoin="round"
+          points="86,197 223,231 361,241 498,256 636,261"/>
+        <g class="sA" stroke="none">
+          <circle cx="86" cy="197" r="5"/><circle cx="223" cy="231" r="5"/><circle cx="361" cy="241" r="5"/>
+          <circle cx="498" cy="256" r="5"/><circle cx="636" cy="261" r="5"/>
+        </g>
+
+        <text x="100" y="56" class="sB" stroke="none" font-size="13.5">trained on labels</text>
+        <text x="100" y="189" class="sA" stroke="none" font-size="13.5">trained on probabilities</text>
+
+        <g opacity=".72" font-size="11.5">
+          <text x="78" y="290" text-anchor="end">0.00</text><text x="78" y="211" text-anchor="end">0.05</text>
+          <text x="78" y="132" text-anchor="end">0.10</text><text x="78" y="53" text-anchor="end">0.15</text>
+        </g>
+        <text x="361" y="318" text-anchor="middle" font-size="13">&larr; harder task            easier task &rarr;</text>
+        <text x="22" y="168" text-anchor="middle" font-size="12.5" transform="rotate(-90 22 168)">how wrong its confidence is</text>
+      </g>
+    </svg>
+    <figcaption><b>Five separately trained pairs.</b> Training on probabilities wins everywhere, and wins by more as the task gets harder.</figcaption>
+  </figure>
+
+  <p>Training on a plain label throws away the fact that the label was uncertain. When two annotators disagree and you record only the majority vote, you have deleted the most useful thing you had.</p>
+
+  <p>One honest caveat: plain labels aren&rsquo;t broken in principle. With unlimited data both models end up in the same place. The problem shows up with limited data, where a model with room to spare drives its own confidence to 100% and stays there.</p>
+</section>
+
+<section>
+  <h2>New answer lists: right answer, wrong confidence</h2>
+
+  <p>I trained the model on a four-way question only, then asked it two-way and three-way questions it had never seen.</p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Question type</th><th class="num">Picks the right answer</th><th class="num">Confidence off by</th></tr></thead>
+      <tbody>
+        <tr><td>4 options &mdash; trained on this</td><td class="num">0.682</td><td class="num">0.091</td></tr>
+        <tr><td>3 options &mdash; never seen</td><td class="num">0.681</td><td class="num">0.340</td></tr>
+        <tr><td>2 options &mdash; never seen</td><td class="num">0.776</td><td class="num">0.276</td></tr>
+        <tr><td>2 options &mdash; worst case</td><td class="num">0.727</td><td class="num">0.451</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The label survives. The probability does not &mdash; and the probability is the reason you&rsquo;d build this instead of an ordinary classifier.</p>
+</section>
+
+<div class="takeaways">
+  <h2>Should you build one?</h2>
+  <div class="tree">
+Is your list of possible answers fixed?
+   <b>yes &rarr;</b> use an ordinary classifier. Smaller, faster, simpler.
+   <b>no  &rarr;</b> keep reading.
+
+Do many questions share one long document?
+   <b>yes &rarr;</b> the reuse trick is worth real money.
+
+Do the answer options change between calls?
+   <b>yes &rarr;</b> shuffle options in training, and measure the flip rate.
+         Test calibration on unseen option sets separately.
+
+Do you need conclusions about masks that hold on real text?
+   <b>&rarr;</b> use a task where word order matters. Mine didn&rsquo;t.
+  </div>
+</div>
+
+<section>
+  <h2>What this doesn&rsquo;t show</h2>
+
+  <p>This is a 206,000-parameter model on invented data. It doesn&rsquo;t tell you how Jev is actually built &mdash; TypeSafe has confirmed nothing, and my mask inference could be wrong. The two failures are failures in <em>my</em> setup, and a bigger model on real text might behave differently.</p>
+
+  <p>What it did do is change what I&rsquo;d build. I went in thinking the clever mask was the interesting part and that flexible answer lists came free. The mask turned out to be untestable on my task, and the flexible answer lists turned out to need careful training and still not quite work.</p>
+
+  <p>Finding that out cost twenty cents.</p>
+
+  <p class="note">The model, the four ablations and every number in this post are at
+  <a href="https://github.com/sahasrarjn/system-one">github.com/sahasrarjn/system-one</a>.
+  <code>python -m tiny.run</code> reproduces the calibration result; <code>python -m tiny.ablate</code> runs all four. Both are CPU-only.</p>
+</section>
+
+</article>
+</main>
+
+<footer class="container site">
+  <span>&copy; 2026 Sahasra Ranjan &middot; <a href="/index.html">sahasrarjn.com</a></span>
+</footer>
+
+<script src="/assets/vendor/prism/prism-core.min.js"></script>
+<script src="/assets/vendor/prism/prism-python.min.js"></script>
+<script src="/blog/assets/blog.js"></script>
+</body>
+</html>
