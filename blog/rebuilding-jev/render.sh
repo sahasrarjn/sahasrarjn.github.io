@@ -15,7 +15,6 @@ render(){ # name width height
 }
 render mask         900 400
 render order        900 300
-render reuse        900 400
   render calibration  860 400
 render surgery      900 648
 render io           900 600

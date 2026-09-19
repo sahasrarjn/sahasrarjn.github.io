@@ -86,23 +86,6 @@
 </section>
 
 <section>
-  <h2>A clue in the rate limits</h2>
-
-  <p>Most of the design is guessable. Take a normal transformer, delete the part that predicts the next word, put a small scoring head on top. That shape has existed for years.</p>
-
-  <p>The attention mask is the part that isn&rsquo;t guessable. But the docs give it away.</p>
-
-  <p>Jev&rsquo;s published limit is 64,000 tokens per request &mdash; but only 32,000 for <b>&ldquo;state plus the longest individual question.&rdquo;</b> Not the sum of the questions. The longest one.</p>
-
-  <p>A limit shaped like that only makes sense if the document is processed once and every question reuses that same work. Which pins down the mask.</p>
-
-  <figure>
-    <img src="/blog/rebuilding-jev/img/reuse.png" alt="Two columns comparing how a token limit would look if the document were re-read for every question, versus read once. Their published limit matches the read-once version." width="900" loading="lazy">
-    <figcaption><b>This is my inference, not something TypeSafe published.</b> It fits their documented limit. It is not confirmed, and it could be wrong.</figcaption>
-  </figure>
-</section>
-
-<section>
   <h2>The toy I built</h2>
 
   <p>206,081 parameters. Four transformer layers. It trains on a laptop CPU in forty seconds. <a href="https://github.com/sahasrarjn/system-one/tree/main/tiny">All of it is here</a> &mdash; about 600 lines, no framework beyond PyTorch.</p>
@@ -134,7 +117,7 @@
     <div>
       <p class="v ok">&check; right</p>
       <h4>Honest probabilities survive harder tasks</h4>
-      <p>Soft targets won at all <b>5</b> difficulty settings, by <b>2&ndash;3&times;</b> on calibration error.</p>
+      <p>Soft targets won at all <b>5</b> difficulty settings, by <b>2.5&ndash;3.4&times;</b> on calibration error.</p>
     </div>
     <div>
       <p class="v no">&times; half wrong</p>
@@ -147,7 +130,9 @@
 <section>
   <h2>Why the mask test told me nothing</h2>
 
-  <p>I trained three models that differed only in which parts of the text could see which other parts. They scored identically.</p>
+  <p>Transformers control which words may look at which other words. I expected that choice to matter here: let the document look at itself in both directions but not forward at the options, and the document&rsquo;s work stops depending on what you asked &mdash; so you can reuse it across a dozen questions. That is the design I guessed Jev uses, though TypeSafe has confirmed nothing.</p>
+
+  <p>So I trained three models that differed only in which parts of the text could see which other parts. They scored identically.</p>
 
   <p>The reason is a layout detail I should have caught before running it. <b>The options sit at the end of the text.</b> So even under the most restrictive mask &mdash; where each word can only look backwards &mdash; the options are last, and looking backwards means looking at the whole document anyway.</p>
 
