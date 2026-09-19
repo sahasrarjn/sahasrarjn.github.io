@@ -31,7 +31,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"category"</span>: [<span class="s">"billing"</span>, <span class="s">"technical"</span>, <span class="s">"sales"</span>, <span class="s">"spam"</span>],<br>
       &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"urgent"</span>:&nbsp;&nbsp; [<span class="s">"yes"</span>, <span class="s">"no"</span>]<br>
       &nbsp;&nbsp;}<br>}</div>
-      <div class="note2">You declare the options. That list is the contract &mdash; the answer will be one of these.</div>
+      <div class="note2">You declare the options. That list is the contract. The answer will be one of these.</div>
     </div>
   </div>
 
@@ -44,8 +44,7 @@
         <span class="w">my</span><span class="w">bill</span><span class="w">was</span><span class="w">charged</span><span class="w">twice</span><span class="w">please</span><span class="w">help</span>
         <span class="o">billing</span><span class="o">technical</span><span class="o">sales</span><span class="o">spam</span>
       </div>
-      <div class="note2">One flat sequence, here for the <b>category</b> question. The options are appended as
-        ordinary words, so the model reads the document and the candidate answers together. The second question
+      <div class="note2">One flat sequence, here for the <b>category</b> question. The options are appended as ordinary words, so the model reads the document and the candidate answers together. The second question
         reuses the document's work rather than re-reading it.</div>
     </div>
   </div>
@@ -59,7 +58,7 @@
         <div class="r"><div class="n">category</div><div class="v">billing</div><div class="p">p = 0.59</div></div>
         <div class="r"><div class="n">runner-up</div><div class="v">technical</div><div class="p">p = 0.27</div></div>
         <div class="r"><div class="n">urgent</div><div class="v">yes</div><div class="p">p = 0.88</div></div>
-        <div class="r"><div class="n">confidence</div><div class="v">0.41</div><div class="p">low &mdash; route to a human</div></div>
+        <div class="r"><div class="n">confidence</div><div class="v">0.41</div><div class="p">low, route to a human</div></div>
       </div>
       <div class="note2">Typed values, not text. Every probability set sums to 1 over the options you listed,
         so there is nothing to parse and nothing to validate.</div>

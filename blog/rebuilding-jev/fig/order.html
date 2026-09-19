@@ -11,13 +11,12 @@
 .verdict b{color:var(--ink)}
 </style>
 <div class="wrap">
-  <div class="ttl">List the same options in a different order &mdash; how often does the answer change?</div>
+  <div class="ttl">List the same options in a different order, how often does the answer change?</div>
   <div class="row"><div class="lab">trained on one fixed order</div>
     <div class="track"><i style="width:90%;background:#B0332B"></i></div><div class="val" style="color:#B0332B">36.3%</div></div>
   <div class="row"><div class="lab">trained on shuffled orders</div>
     <div class="track"><i style="width:30%;background:#C2701C"></i></div><div class="val" style="color:#C2701C">11.9%</div></div>
   <div class="row"><div class="lab">what you'd want<br><span class="sub">order shouldn't matter at all</span></div>
     <div class="track"><i style="width:0.8%;background:#1D7A5F"></i></div><div class="val" style="color:#1D7A5F">0%</div></div>
-  <div class="verdict">The model can tell the option slots apart by <b>where they sit</b>, so it quietly learns
-    &ldquo;the third slot means sales.&rdquo; Shuffling during training helps a lot and still doesn't fix it.</div>
+  <div class="verdict">The model can tell the option slots apart by <b>where they sit</b>, so it quietly learns &ldquo;the third slot means sales.&rdquo; Shuffling during training helps a lot and still doesn't fix it.</div>
 </div>

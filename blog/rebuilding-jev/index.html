@@ -43,7 +43,7 @@
   <header>
     <div class="kicker">Machine learning &middot; Reproduction</div>
     <h1>Rebuilding Jev</h1>
-    <p class="standfirst">A new model answers questions about text without generating any text. It shipped without a paper, so I rebuilt a small version and made four guesses about how it works. Two were wrong &mdash; including the one the whole design appears to rest on.</p>
+    <p class="standfirst">A new model answers questions about text without generating any text. It shipped without a paper, so I rebuilt a small version and made four guesses about how it works. Two were wrong, including the one the whole design appears to rest on.</p>
     <div class="byline"><span>Sahasra Ranjan</span>
     <span>~8 min read</span>
     <span>206K parameters, trained from scratch &middot; CPU only &middot; <a href="https://github.com/sahasrarjn/system-one">code</a></span></div>
@@ -58,20 +58,20 @@
 
   <p>TypeSafe AI released Jev last week. You give it a document and a list of questions whose possible answers are fixed in advance. It returns one answer per question, each with a probability.</p>
 
-  <p>It never writes a sentence. There is no token-by-token generation, so a call takes one pass through the model instead of dozens. That is why they can charge for input and give output away free &mdash; there is no output to charge for.</p>
+  <p>It never writes a sentence. There is no token-by-token generation, so a call takes one pass through the model instead of dozens. That is why they can charge for input and give output away free. There is no output to charge for.</p>
 
   <figure>
     <img src="/blog/rebuilding-jev/img/io.png" alt="Three stages. You send a document plus questions whose answer options you declare. The model sees one flat sequence of the document words followed by the option words. You get back typed values with probabilities." width="900" loading="lazy">
-    <figcaption><b>The options are part of the input, not baked into the model.</b> That is what lets you change them on every call &mdash; and every probability set sums to 1 over the list you supplied, so there is nothing to parse.</figcaption>
+    <figcaption><b>The options are part of the input, not baked into the model.</b> That is what lets you change them on every call. Every probability set sums to 1 over the list you supplied, so there is nothing to parse.</figcaption>
   </figure>
 
-  <p>No paper came with it. No parameter count, no training details, and no calibration numbers &mdash; which is odd, because calibrated probabilities are the whole pitch.</p>
+  <p>No paper came with it. No parameter count, no training details, and no calibration numbers, which is odd, because calibrated probabilities are the whole pitch.</p>
 </section>
 
 <section>
   <h2>What actually changed inside the model</h2>
 
-  <p>The body of the model is an ordinary transformer &mdash; embeddings, then a stack of layers. Nothing there is new.</p>
+  <p>The body of the model is an ordinary transformer: embeddings, then a stack of layers. Nothing there is new.</p>
 
   <p>The change is the last layer. A language model ends with a layer that scores <em>every word in the vocabulary</em>, picks one, appends it, and runs the whole model again for the next word. That final layer is enormous: for Qwen3-0.6B it is 1,024 &times; 151,936, about 156 million numbers, and roughly a quarter of the entire model.</p>
 
@@ -79,26 +79,26 @@
 
   <figure>
     <img src="/blog/rebuilding-jev/img/surgery.png" alt="Two model stacks side by side. Both share word embeddings and four transformer layers. The language model's last layer scores all 151,936 vocabulary words and feeds a generation loop, both marked removed. This model's last layer produces one score per option, with no loop." width="900" loading="lazy">
-    <figcaption><b>Everything below the arrow is identical.</b> The removed layer is drawn faded because it is the only structural change &mdash; that, and the loop that depended on it.</figcaption>
+    <figcaption><b>Everything below the arrow is identical.</b> The removed layer is drawn faded because it is the only structural change, along with the loop that depended on it.</figcaption>
   </figure>
 
-  <p>This is also where the type guarantee comes from, and it isn&rsquo;t learned. The scores are turned into probabilities that sum to 1 <em>across the options you listed</em>. There is no leftover probability to assign to anything else, so an answer outside your list isn&rsquo;t unlikely &mdash; there is nowhere for it to come from.</p>
+  <p>This is also where the type guarantee comes from, and it isn&rsquo;t learned. The scores are turned into probabilities that sum to 1 <em>across the options you listed</em>. There is no leftover probability to assign to anything else, so an answer outside your list isn&rsquo;t unlikely. There is nowhere for it to come from.</p>
 </section>
 
 <section>
   <h2>The toy I built</h2>
 
-  <p>206,081 parameters. Four transformer layers. It trains on a laptop CPU in forty seconds. <a href="https://github.com/sahasrarjn/system-one/tree/main/tiny">All of it is here</a> &mdash; about 600 lines, no framework beyond PyTorch.</p>
+  <p>206,081 parameters. Four transformer layers. It trains on a laptop CPU in forty seconds. <a href="https://github.com/sahasrarjn/system-one/tree/main/tiny">All of it is here</a>: about 600 lines, no framework beyond PyTorch.</p>
 
-  <p><b>Nothing here is pretrained.</b> The weights start random and only ever see the made-up data below. Where I quote Qwen3-0.6B figures, that is a size comparison to show what the same change costs on a real model &mdash; I never trained it, and none of the results come from it.</p>
+  <p><b>Nothing here is pretrained.</b> The weights start random and only ever see the made-up data below. Where I quote Qwen3-0.6B figures, that is a size comparison to show what the same change costs on a real model. I never trained it, and none of the results come from it.</p>
 
   <p>The training data is made up, and that is the point. I generate each document from a recipe I choose, so I can compute the correct answer&rsquo;s exact probability with Bayes&rsquo; rule.</p>
 
-  <p>That gives me something real data never does: a <b>ceiling</b>. On this task the best possible score is 0.687. When my model scores 0.687 it isn&rsquo;t mediocre, it&rsquo;s perfect &mdash; and the other 31% is the task being genuinely undecidable.</p>
+  <p>That gives me something real data never does: a <b>ceiling</b>. On this task the best possible score is 0.687. When my model scores 0.687 it isn&rsquo;t mediocre, it&rsquo;s perfect, and the other 31% is the task being genuinely undecidable.</p>
 
   <div class="callout">
     <div class="h">One limitation, stated up front</div>
-    <p>My documents are bags of words &mdash; shuffling the words doesn&rsquo;t change the right answer. That turns out to break one of the four experiments, and it&rsquo;s better to know it now than to discover it in the results.</p>
+    <p>My documents are bags of words, so shuffling them doesn&rsquo;t change the right answer. That turns out to break one of the four experiments, and it&rsquo;s better to know it now than to discover it in the results.</p>
   </div>
 </section>
 
@@ -109,16 +109,16 @@
 
   <figure>
     <img src="/blog/rebuilding-jev/img/pipeline.png" alt="Four-stage pipeline: generate a document from a controlled recipe; compute the exact answer probabilities with Bayes' rule and use that distribution as the training target; score the options and compare against the truth with a cross-entropy plus Brier loss; test on 5,000 held-out documents against a known ceiling." width="900" loading="lazy">
-    <figcaption><b>The target is a probability, not a label.</b> Most training tells a model which answer was right. This tells it how likely each answer was &mdash; which is the only way it can learn to be honest about uncertainty.</figcaption>
+    <figcaption><b>The target is a probability, not a label.</b> Most training tells a model which answer was right. This tells it how likely each answer was, which is the only way it can learn to be honest about uncertainty.</figcaption>
   </figure>
 
-  <p>The whole run is twenty thousand documents, ten epochs, forty seconds on a laptop CPU. Testing is five thousand held-out documents, and because the recipe is known I can also compute the <b>best score anyone could possibly get</b> &mdash; which makes &ldquo;is this good?&rdquo; a question with a number rather than a feeling.</p>
+  <p>The whole run is twenty thousand documents, ten epochs, forty seconds on a laptop CPU. Testing is five thousand held-out documents, and because the recipe is known I can also compute the <b>best score anyone could possibly get</b>, which makes &ldquo;is this good?&rdquo; a question with a number rather than a feeling.</p>
 </section>
 
 <section>
   <h2>Four guesses</h2>
 
-  <p><b>Did it work?</b> On the thing that matters most, yes &mdash; the model landed exactly on the best score the task allows, and its stated probabilities track reality closely. On flexible answer lists, only partly. And one of my four guesses turned out to be untestable on a task this simple.</p>
+  <p><b>Did it work?</b> On the thing that matters most, yes. The model landed exactly on the best score the task allows, and its stated probabilities track reality closely. On flexible answer lists, only partly. And one of my four guesses turned out to be untestable on a task this simple.</p>
 
   <div class="guesses">
     <div>
@@ -147,18 +147,18 @@
 <section>
   <h2>Why the mask test told me nothing</h2>
 
-  <p>Transformers control which words may look at which other words. I expected that choice to matter here: let the document look at itself in both directions but not forward at the options, and the document&rsquo;s work stops depending on what you asked &mdash; so you can reuse it across a dozen questions. That is the design I guessed Jev uses, though TypeSafe has confirmed nothing.</p>
+  <p>Transformers control which words may look at which other words. I expected that choice to matter here: let the document look at itself in both directions but not forward at the options, and the document&rsquo;s work stops depending on what you asked, so you can reuse it across a dozen questions. That is the design I guessed Jev uses, though TypeSafe has confirmed nothing.</p>
 
   <p>So I trained three models that differed only in which parts of the text could see which other parts. They scored identically.</p>
 
-  <p>The reason is in how the input is laid out. <b>The options sit at the end of the text.</b> So even under the most restrictive mask &mdash; where each word can only look backwards &mdash; the options are last, and looking backwards means looking at the whole document anyway.</p>
+  <p>The reason is in how the input is laid out. <b>The options sit at the end of the text.</b> So even under the most restrictive mask, where each word can only look backwards, the options are last, and looking backwards means looking at the whole document anyway.</p>
 
   <figure>
     <img src="/blog/rebuilding-jev/img/mask.png" alt="Three rows showing the same input under different masks. The options sit at the end, so even a backwards-only mask lets them see the whole document. Both masks score the same." width="900" loading="lazy">
     <figcaption><b>A null result about my task, not about masks.</b> A task where word order matters would give a real answer; mine can&rsquo;t.</figcaption>
   </figure>
 
-  <p>One thing did hold. The fully-open mask &mdash; where everything sees everything, and the reuse trick becomes impossible &mdash; scored <b>+0.0002</b> better. So reusing the document&rsquo;s work costs nothing.</p>
+  <p>One thing did hold. The fully-open mask, where everything sees everything and the reuse trick becomes impossible, scored <b>+0.0002</b> better. So reusing the document&rsquo;s work costs nothing.</p>
 </section>
 
 <section>
@@ -171,7 +171,7 @@
     <figcaption><b>Position, not meaning.</b> The model tells the option slots apart by where they sit, so it learns &ldquo;the third slot means sales.&rdquo;</figcaption>
   </figure>
 
-  <p>This is the result that changed what I&rsquo;d build. Picking answers from a list you supply at call time is the most attractive thing about this design &mdash; and it is much shakier than it looks.</p>
+  <p>This is the result that changed what I&rsquo;d build. Picking answers from a list you supply at call time is the most attractive thing about this design, and it is much shakier than it looks.</p>
 </section>
 
 <section>
@@ -198,15 +198,15 @@
     <table>
       <thead><tr><th>Question type</th><th class="num">Picks the right answer</th><th class="num">Confidence off by</th></tr></thead>
       <tbody>
-        <tr><td>4 options &mdash; trained on this</td><td class="num">0.682</td><td class="num">0.091</td></tr>
-        <tr><td>3 options &mdash; never seen</td><td class="num">0.681</td><td class="num">0.340</td></tr>
-        <tr><td>2 options &mdash; never seen</td><td class="num">0.776</td><td class="num">0.276</td></tr>
-        <tr><td>2 options &mdash; worst case</td><td class="num">0.727</td><td class="num">0.451</td></tr>
+        <tr><td>4 options, trained on this</td><td class="num">0.682</td><td class="num">0.091</td></tr>
+        <tr><td>3 options, never seen</td><td class="num">0.681</td><td class="num">0.340</td></tr>
+        <tr><td>2 options, never seen</td><td class="num">0.776</td><td class="num">0.276</td></tr>
+        <tr><td>2 options, worst case</td><td class="num">0.727</td><td class="num">0.451</td></tr>
       </tbody>
     </table>
   </div>
 
-  <p>The label survives. The probability does not &mdash; and the probability is the reason you&rsquo;d build this instead of an ordinary classifier.</p>
+  <p>The label survives. The probability does not, and the probability is the reason you&rsquo;d build this instead of an ordinary classifier.</p>
 </section>
 
 <div class="takeaways">
@@ -231,7 +231,7 @@ Do you need conclusions about masks that hold on real text?
 <section>
   <h2>What this doesn&rsquo;t show</h2>
 
-  <p>This is a 206,000-parameter model on invented data. It doesn&rsquo;t tell you how Jev is actually built &mdash; TypeSafe has confirmed nothing, and my mask inference could be wrong. The two failures are failures in <em>my</em> setup, and a bigger model on real text might behave differently.</p>
+  <p>This is a 206,000-parameter model on invented data. It doesn&rsquo;t tell you how Jev is actually built. TypeSafe has confirmed nothing, and my mask inference could be wrong. The two failures are failures in <em>my</em> setup, and a bigger model on real text might behave differently.</p>
 
   <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls work for the answer and not for the confidence. And a clever attention mask, on a task like this one, buys nothing over the plain one.</p>
 
