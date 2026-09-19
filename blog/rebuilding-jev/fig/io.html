@@ -1,0 +1,68 @@
+<!doctype html><meta charset="utf-8"><style>@import "_base.css";
+.wrap{width:900px}
+.stage{display:flex;gap:14px;align-items:flex-start;margin-bottom:9px}
+.tag{flex:0 0 112px;text-align:right;font-size:12px;font-weight:700;color:var(--ink-3);
+     letter-spacing:.06em;text-transform:uppercase;padding-top:11px}
+.body{flex:1;background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:12px 14px}
+.body.acc{border-color:var(--accent);border-width:1.5px}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.75;color:var(--ink-2)}
+.code .k{color:var(--accent);font-weight:600}
+.code .s{color:var(--ink)}
+.down{text-align:center;color:var(--ink-3);font-size:16px;margin:0 0 9px 112px}
+.seq{display:flex;flex-wrap:wrap;gap:4px}
+.w{background:var(--soft);border:1px solid var(--rule);border-radius:4px;padding:5px 9px;font-size:12.5px;color:var(--ink-2)}
+.o{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:4px;padding:5px 9px;
+   font-size:12.5px;color:var(--accent);font-weight:600}
+.note2{font-size:11.5px;color:var(--ink-3);margin-top:8px;line-height:1.5}
+.res{display:flex;gap:9px}
+.r{flex:1;background:#fff;border:1px solid var(--rule);border-radius:6px;padding:9px 11px}
+.r .n{font-size:11.5px;color:var(--ink-3);margin-bottom:4px}
+.r .v{font-size:14px;font-weight:700;color:var(--ink)}
+.r .p{font-size:11.5px;color:var(--accent);font-weight:600;margin-top:2px}
+</style>
+<div class="wrap">
+  <div class="ttl">What goes in, what comes out</div>
+
+  <div class="stage">
+    <div class="tag">you send</div>
+    <div class="body"><div class="code">{<br>
+      &nbsp;&nbsp;<span class="k">"document"</span>: <span class="s">"my bill was charged twice, please help"</span>,<br>
+      &nbsp;&nbsp;<span class="k">"questions"</span>: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"category"</span>: [<span class="s">"billing"</span>, <span class="s">"technical"</span>, <span class="s">"sales"</span>, <span class="s">"spam"</span>],<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"urgent"</span>:&nbsp;&nbsp; [<span class="s">"yes"</span>, <span class="s">"no"</span>]<br>
+      &nbsp;&nbsp;}<br>}</div>
+      <div class="note2">You declare the options. That list is the contract &mdash; the answer will be one of these.</div>
+    </div>
+  </div>
+
+  <div class="down">&darr;</div>
+
+  <div class="stage">
+    <div class="tag">the model sees</div>
+    <div class="body acc">
+      <div class="seq">
+        <span class="w">my</span><span class="w">bill</span><span class="w">was</span><span class="w">charged</span><span class="w">twice</span><span class="w">please</span><span class="w">help</span>
+        <span class="o">billing</span><span class="o">technical</span><span class="o">sales</span><span class="o">spam</span>
+      </div>
+      <div class="note2">One flat sequence, here for the <b>category</b> question. The options are appended as
+        ordinary words, so the model reads the document and the candidate answers together. The second question
+        reuses the document's work rather than re-reading it.</div>
+    </div>
+  </div>
+
+  <div class="down">&darr;</div>
+
+  <div class="stage">
+    <div class="tag">you get back</div>
+    <div class="body">
+      <div class="res">
+        <div class="r"><div class="n">category</div><div class="v">billing</div><div class="p">p = 0.59</div></div>
+        <div class="r"><div class="n">runner-up</div><div class="v">technical</div><div class="p">p = 0.27</div></div>
+        <div class="r"><div class="n">urgent</div><div class="v">yes</div><div class="p">p = 0.88</div></div>
+        <div class="r"><div class="n">confidence</div><div class="v">0.41</div><div class="p">low &mdash; route to a human</div></div>
+      </div>
+      <div class="note2">Typed values, not text. Every probability set sums to 1 over the options you listed,
+        so there is nothing to parse and nothing to validate.</div>
+    </div>
+  </div>
+</div>

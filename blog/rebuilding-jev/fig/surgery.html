@@ -1,0 +1,69 @@
+<!doctype html><meta charset="utf-8"><style>@import "_base.css";
+.wrap{width:900px}
+.cols{display:flex;gap:22px;align-items:flex-start}
+.col{flex:1}
+.ch{font-size:14px;font-weight:700;margin-bottom:4px}
+.cs{font-size:12px;color:var(--ink-3);margin-bottom:11px;line-height:1.4;min-height:32px}
+.stack{background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:12px}
+.blk{border-radius:5px;padding:10px;text-align:center;font-size:12.5px;margin-bottom:7px;line-height:1.35}
+.same{background:var(--soft);border:1px solid var(--rule);color:var(--ink-2)}
+.same b{color:var(--ink);font-weight:600}
+.big{background:#FBF3EC;border:1.5px dashed var(--warm);color:var(--warm);font-weight:600;
+     padding-top:28px;padding-bottom:28px;position:relative;opacity:.72}
+.gone{position:absolute;top:-9px;right:10px;background:var(--no);color:#fff;font-size:9.5px;
+      letter-spacing:.11em;font-weight:700;padding:3px 8px;border-radius:3px}
+.tiny{background:var(--accent-soft);border:1.5px solid var(--accent);color:var(--accent);font-weight:600;
+      padding-top:4px;padding-bottom:4px;font-size:12px}
+.loop{background:#FBF3EC;border:1.5px dashed var(--warm);color:var(--warm);font-size:12px;
+      border-radius:5px;padding:13px 9px;text-align:center;margin-bottom:7px;position:relative;opacity:.72}
+.out{border-radius:5px;padding:10px;text-align:center;font-size:12.5px;line-height:1.4}
+.out.bad{background:#fff;border:1px dashed var(--no);color:var(--no)}
+.out.good{background:#fff;border:1.5px solid var(--ok);color:var(--ok);font-weight:600}
+.arrow{text-align:center;color:var(--ink-3);font-size:15px;margin:1px 0 6px}
+.foot{margin-top:15px;background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);
+      border-radius:6px;padding:14px 17px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.foot b{color:var(--ink)}
+.px{font-family:ui-monospace,Menlo,monospace;font-size:11px}
+</style>
+<div class="wrap">
+  <div class="ttl">The only surgery: swap the last layer, delete the loop</div>
+  <div class="cols">
+
+    <div class="col">
+      <div class="ch" style="color:var(--ink-3)">A language model</div>
+      <div class="cs">Ends by guessing a word, then runs again to guess the next one.</div>
+      <div class="stack">
+        <div class="blk same"><b>word embeddings</b></div>
+        <div class="blk same"><b>4 transformer layers</b><br><span class="px">the same in both</span></div>
+        <div class="arrow">&darr;</div>
+        <div class="blk big">last layer: score every word<br>in the whole vocabulary
+          <div class="px" style="margin-top:5px;opacity:.85">1024 &times; 151,936 = 156M numbers</div>
+          <div class="gone">REMOVED</div></div>
+        <div class="loop">pick a word &rarr; add it &rarr; run again<div class="gone">REMOVED</div></div>
+        <div class="out bad"><span class="px">{"category": "billing"}</span><br>
+          a string you must parse &mdash; and it can come back malformed</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="ch" style="color:var(--accent)">This model</div>
+      <div class="cs">Ends by scoring the options you supplied. Nothing to parse, nothing to run twice.</div>
+      <div class="stack">
+        <div class="blk same"><b>word embeddings</b></div>
+        <div class="blk same"><b>4 transformer layers</b><br><span class="px">the same in both</span></div>
+        <div class="arrow">&darr;</div>
+        <div class="blk tiny">last layer: one score per option
+          <div class="px" style="margin-top:4px">1024 &times; 1 = 1,025 numbers</div></div>
+        <div style="height:38px;display:flex;align-items:center;justify-content:center;
+                    color:var(--ink-3);font-size:12px;margin-bottom:7px">no loop &mdash; one pass and it's done</div>
+        <div class="out good">billing 0.59 &nbsp; technical 0.27<br>sales 0.09 &nbsp; spam 0.05</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="foot">
+    Everything below the arrow is identical. The change is that the final layer stops scoring
+    <b>151,936 possible words</b> and starts scoring <b>however many options you listed</b> &mdash; which is
+    why the generation loop disappears with it. Figures shown for Qwen3-0.6B; my toy is the same shape, smaller.
+  </div>
+</div>
