@@ -1,0 +1,50 @@
+<!doctype html><meta charset="utf-8"><style>@import "_base.css";
+.wrap{width:900px}
+.row{display:flex;gap:14px;align-items:center;margin-bottom:11px}
+.lab{flex:0 0 165px;font-size:13.5px;color:var(--ink-2);text-align:right;line-height:1.35}
+.lab .s{font-size:11.5px;color:var(--ink-3)}
+.seq{flex:1;background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:11px 13px}
+.bars{display:flex;gap:8px}
+.doc{flex:0 0 60%;background:var(--soft);border:1px solid var(--rule);border-radius:4px;
+     padding:9px 0;text-align:center;font-size:13px;color:var(--ink-2)}
+.op{flex:1;background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:4px;
+    padding:9px 0;text-align:center;font-size:13px;color:var(--accent);font-weight:600}
+.reach{position:relative;height:20px;margin-top:8px}
+.reach .ln{position:absolute;left:8px;right:8px;top:9px;height:2px;background:var(--accent)}
+.reach .hd{position:absolute;left:0;top:4px;width:0;height:0;border:6px solid transparent;border-right-color:var(--accent)}
+.reach .tx{position:absolute;right:30px;top:-2px;font-size:11px;color:var(--accent);background:var(--card);padding:0 6px}
+.res{flex:0 0 96px;font-size:17px;font-weight:700;color:var(--ink)}
+.verdict{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);
+         border-radius:6px;padding:15px 18px;font-size:13.5px;line-height:1.62;color:var(--ink-2);margin-top:10px}
+.verdict b{color:var(--ink)}
+</style>
+<div class="wrap">
+  <div class="ttl">Why the clever mask made no difference</div>
+
+  <div class="row">
+    <div class="lab">the input, always</div>
+    <div class="seq"><div class="bars"><div class="doc">the document</div><div class="op">the options</div></div></div>
+    <div class="res" style="color:var(--ink-3);font-size:12px;font-weight:600">SCORE</div>
+  </div>
+
+  <div class="row">
+    <div class="lab">look backwards only<br><span class="s">the plain mask</span></div>
+    <div class="seq">
+      <div class="bars"><div class="doc">the document</div><div class="op">the options</div></div>
+      <div class="reach"><div class="ln"></div><div class="hd"></div></div>
+    </div>
+    <div class="res">0.6870</div>
+  </div>
+
+  <div class="row">
+    <div class="lab">look both ways<br><span class="s">the clever mask</span></div>
+    <div class="seq"><div class="bars"><div class="doc">the document</div><div class="op">the options</div></div></div>
+    <div class="res">0.6868</div>
+  </div>
+
+  <div class="verdict">
+    The options sit at the <b>end</b> of the input. So even when a word may only look backwards, the options
+    are last &mdash; and looking backwards from there already covers the whole document. <b>The restriction
+    costs nothing</b>, and both masks land exactly on the best score this task allows (0.6870).
+  </div>
+</div>
