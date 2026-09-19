@@ -177,20 +177,28 @@
 <section>
   <h2>What I found</h2>
 
-  <p>Three things, one good and two that would change how I built this for real.</p>
+  <p>Three things. One good, one a bug with a one-line fix, and one that still stands as a real limitation.</p>
 </section>
 
 <section>
-  <h2>Why the answer order broke it</h2>
+  <h2>The answer order broke it, and then it did not</h2>
 
   <p>I listed the same options in a different order and asked again. More than a third of the answers changed.</p>
 
+  <p>The cause turned out to be dull. Every position in the input carries its own learned marker, and the option slots are no exception, so the model can tell slot three from slot four. Nothing stops it learning "slot three means sales" instead of reading the word sitting there, and that is what it did.</p>
+
+  <p>The obvious repair is to shuffle the options during training, so the model never sees a stable order to memorise. That helps a lot and stops well short of fixing it: flips fall from 35% to 12%. Shuffling takes away the <em>incentive</em> to key on position. It leaves the <em>ability</em> untouched.</p>
+
+  <p>So take the ability away. Give every option slot the same position marker. The slots then differ only by the word in them, permuting the options permutes the scores, and nothing else moves.</p>
+
   <figure>
-    <img src="/blog/rebuilding-jev/img/order.png" alt="Bar chart: trained on a fixed option order, 36.3% of answers flip when reordered; trained on shuffled orders, 11.9%; the ideal is 0%." width="900" loading="lazy">
-    <figcaption><b>Position, not meaning.</b> The model tells the option slots apart by where they sit, so it learns &ldquo;the third slot means sales.&rdquo;</figcaption>
+    <img src="/blog/rebuilding-jev/img/order.png" alt="Four configurations compared. With a separate position per option slot, 34.8% of answers flip when the options are reordered, or 12.1% if training shuffles them. With one shared position, flips are exactly 0.0% either way, and the confidence error improves from 0.0389 to 0.0230." width="900" loading="lazy">
+    <figcaption><b>Exactly zero, not nearly zero.</b> With a shared position the model has no way to represent "which slot this is", so order-invariance holds by construction rather than because training taught it.</figcaption>
   </figure>
 
-  <p>This is the result that changed what I&rsquo;d build. Picking answers from a list you supply at call time is the most attractive thing about this design, and it is much shakier than it looks.</p>
+  <p>It is worth being precise about what "exactly" means here. This is not a small number that rounds down. On an untrained model, permuting the options and permuting the outputs back gives identical scores to five decimal places. The property is a consequence of the architecture, so it holds before any training and cannot drift afterwards.</p>
+
+  <p>The part I did not expect: it is free. Accuracy does not move, and the confidence error <em>improves</em> by about 40%, from 0.0389 to 0.0230. Taking away a shortcut the model was using made it better rather than worse, which in hindsight is what you would hope. Memorising slot positions was never going to generalise.</p>
 </section>
 
 <section>
@@ -269,7 +277,7 @@ Do the answer options change between calls?
 
   <p>This is a 206,000-parameter model on invented words. It does not tell you how Jev is actually built, because TypeSafe has confirmed nothing. What I measured is how this shape of model behaves on a task I made up, and a bigger one on real text may well behave differently.</p>
 
-  <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls work for the answer and not for the confidence, which is the opposite of what makes the design attractive.</p>
+  <p>What it does establish is narrower and still useful. Training on probabilities rather than labels reaches the best score the task allows and stays honest about its confidence, across every difficulty I tried. Answer lists that change between calls are order-sensitive until you give the option slots a shared position, after which they are not. Their confidence still does not survive an answer list the model has never seen, and that one I have not solved.</p>
 
   <p>Finding that out cost twenty cents.</p>
 
