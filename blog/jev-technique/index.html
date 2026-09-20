@@ -94,13 +94,13 @@
 
   <p>The body of the model is an ordinary transformer: embeddings, then a stack of layers. Nothing there is new.</p>
 
-  <p>The change is the last layer. A language model ends with a layer that scores <em>every word in the vocabulary</em>, picks one, appends it, and runs the whole model again for the next word. That final layer is enormous: for Qwen3-0.6B it is 1,024 &times; 151,936, about 156 million numbers, and roughly a quarter of the entire model.</p>
+  <p>The change is the last layer. A language model ends with a layer that scores <em>every word in the vocabulary</em>, picks one, appends it, and runs the whole model again for the next word. That final layer is enormous: for Qwen3-0.6B it scores against a 1,024 &times; 151,936 matrix, about 156 million numbers. In this model that matrix does double duty as the input embedding table, so it stays. The work it does at the output does not.</p>
 
-  <p>Delete it and put a layer that produces <em>one score per option</em> in its place. That layer is 1,025 numbers. The generation loop goes with it, because there is no next word to guess.</p>
+  <p>Stop doing that step and put a layer that produces <em>one score per option</em> in its place. That layer is 1,025 numbers, and it replaces a matrix multiply against the entire vocabulary at every position. The generation loop goes with it, because there is no next word to guess.</p>
 
   <figure>
     <img src="/blog/jev-technique/img/surgery.png" alt="Two model stacks side by side. Both share word embeddings and four transformer layers. The language model's last layer scores all 151,936 vocabulary words and feeds a generation loop, both marked removed. This model's last layer produces one score per option, with no loop." width="900" loading="lazy">
-    <figcaption><b>Everything below the arrow is identical.</b> The removed layer is drawn faded because it is the only structural change, along with the loop that depended on it.</figcaption>
+    <figcaption><b>Everything below the arrow is identical.</b> The removed step is drawn faded because it is the only structural change, along with the loop that depended on it.</figcaption>
   </figure>
 
   <p>This is also where the type guarantee comes from, and it isn&rsquo;t learned. The scores are turned into probabilities that sum to 1 <em>across the options you listed</em>. There is no leftover probability to assign to anything else, so an answer outside your list isn&rsquo;t unlikely. There is nowhere for it to come from.</p>
