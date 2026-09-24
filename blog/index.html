@@ -42,7 +42,8 @@
     <span class="post-title">The Technique Behind Jev</span>
     <span class="post-desc">
       TypeSafe shipped a model that answers questions without generating text, and no paper with it. I
-      rebuilt a 206K-parameter version and made four guesses about how it works. Two were wrong. The clever attention mask changed nothing, and reordering the answer options flipped 36% of answers.
+      rebuilt a 206K-parameter version to find out which of the clever-sounding parts actually earn their
+      place. Training on probabilities instead of labels held up. Flexible answer lists did not.
     </span>
   </a>
 
