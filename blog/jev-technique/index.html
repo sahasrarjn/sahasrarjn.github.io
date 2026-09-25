@@ -235,7 +235,7 @@
 
   <p>They are the same model to within noise. I had expected the plain one to be meaningfully quicker, since its input is 14 tokens rather than 18, but at this size the fixed overhead of a forward pass swamps four tokens and the gap is 3%.</p>
 
-  <p>So the flexible design buys precisely one thing, and it is the thing measured at 36% order sensitivity with confidence that does not survive an unfamiliar answer list. That is the whole decision:</p>
+  <p>So the flexible design buys precisely one thing: an answer list you can change per call. Whether that is worth having depends entirely on whether you need it. That is the whole decision:</p>
 
   <div class="tree">
 Is your list of possible answers fixed?
